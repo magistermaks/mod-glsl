@@ -17,6 +17,7 @@ public class PanoramaResourceLoader implements SimpleResourceReloadListener<Pano
 
 	private static final Identifier VERTEX = PanoramaClient.id("panorama/shader.vert");
 	private static final Identifier FRAGMENT = PanoramaClient.id("panorama/shader.frag");
+	private static final Identifier TEXTURE = PanoramaClient.id("panorama/texture.png");
 
 	@Override
 	public Identifier getFabricId() {
@@ -29,7 +30,7 @@ public class PanoramaResourceLoader implements SimpleResourceReloadListener<Pano
 			String vertex = loadStringResource(manager, VERTEX);
 			String fragment = loadStringResource(manager, FRAGMENT);
 
-			return new PanoramaShader(vertex, fragment);
+			return new PanoramaShader(vertex, fragment, getTexture(manager));
 		}, executor);
 	}
 
@@ -39,6 +40,10 @@ public class PanoramaResourceLoader implements SimpleResourceReloadListener<Pano
 		} catch (IOException exception) {
 			return "";
 		}
+	}
+
+	private Identifier getTexture(ResourceManager manager) {
+		return manager.containsResource(TEXTURE) ? TEXTURE : null;
 	}
 
 	@Override

@@ -1,5 +1,5 @@
-## Stylish Occult
-Allows resource packs to add GLSL shaders for the title screen panorama.  
+## Panorama Shaders
+This mod allows resource packs to add GLSL shaders for the title screen panorama.  
 See documentation here: [WIKI.md](WIKI.md)
 
 #### Download

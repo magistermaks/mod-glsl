@@ -106,7 +106,7 @@ mat3 lookat(vec3 dir, vec3 up) {
 }
 
 void mainImage(out vec4 fragColor, in vec2 fragCoord) {
-    vec2 uv = (fragCoord - resolution.xy * .5) / resolution.y;
+    vec2 uv = (fragCoord - resolution.xy * 0.25) / resolution.y;
     t = time * 7.;
 
     vec3 from = path(t);

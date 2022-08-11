@@ -19,10 +19,10 @@ public class RotatingCubeMapRendererMixin {
 	public void render(CubeMapRenderer instance, MinecraftClient client, float x, float y, float alpha) {
 		Window window = client.getWindow();
 
-		int width = window.getWidth() / 2;
-		int height = window.getHeight() / 2;
-		float mx = (float) client.mouse.getX() / (float) window.getWidth();
-		float my = (float) client.mouse.getY() / (float) window.getHeight();
+		int width = window.getWidth();
+		int height = window.getHeight();
+		float mx = (float) client.mouse.getX() / (float) width;
+		float my = (float) client.mouse.getY() / (float) height;
 
 		PanoramaClient.getRenderer().draw(this.time / 60, mx, my, width, height, alpha);
 	}

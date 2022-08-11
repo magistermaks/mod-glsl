@@ -24,7 +24,7 @@ public class RotatingCubeMapRendererMixin {
 		float mx = (float) client.mouse.getX() / (float) window.getWidth();
 		float my = (float) client.mouse.getY() / (float) window.getHeight();
 
-		PanoramaClient.getRenderer().draw(this.time / 60, mx, my, width, height);
+		PanoramaClient.getRenderer().draw(this.time / 60, mx, my, width, height, alpha);
 	}
 
 }

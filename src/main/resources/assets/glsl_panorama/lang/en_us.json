@@ -1,0 +1,4 @@
+{
+	"error.glsl_panorama.top": "Panorama shader failed to load!",
+	"error.glsl_panorama.bottom": "Check game logs to identify the problem."
+}

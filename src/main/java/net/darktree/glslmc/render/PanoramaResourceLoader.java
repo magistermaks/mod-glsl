@@ -18,8 +18,6 @@ public class PanoramaResourceLoader implements SimpleResourceReloadListener<Pano
 	private static final Identifier VERTEX = PanoramaClient.id("panorama/shader.vert");
 	private static final Identifier FRAGMENT = PanoramaClient.id("panorama/shader.frag");
 
-	private PanoramaShader source;
-
 	@Override
 	public Identifier getFabricId() {
 		return PanoramaClient.id("panorama");
@@ -45,16 +43,8 @@ public class PanoramaResourceLoader implements SimpleResourceReloadListener<Pano
 
 	@Override
 	public CompletableFuture<Void> apply(PanoramaShader data, ResourceManager manager, Profiler profiler, Executor executor) {
-		if (source != null) {
-			source.close();
-		}
-
-		this.source = data;
+		PanoramaClient.setShader(data);
 		return CompletableFuture.completedFuture(null);
-	}
-
-	public PanoramaShader getSource() {
-		return source;
 	}
 
 }

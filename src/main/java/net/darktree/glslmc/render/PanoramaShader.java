@@ -1,30 +1,27 @@
 package net.darktree.glslmc.render;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import net.darktree.glslmc.PanoramaClient;
+import net.darktree.glslmc.render.impl.PanoramaFallbackRenderer;
+import net.darktree.glslmc.render.impl.PanoramaShaderRenderer;
 
 public class PanoramaShader {
 
 	private final String vertex;
 	private final String fragment;
-	private PanoramaRenderer renderer = null;
 
 	public PanoramaShader(String vertex, String fragment) {
 		this.vertex = ShaderPatcher.patch(vertex);
 		this.fragment = ShaderPatcher.patch(fragment);
 	}
 
-	public void close() {
-		RenderSystem.recordRenderCall(() -> {
-			renderer.close();
-		});
-	}
-
-	public PanoramaRenderer getRenderer() {
-		if (renderer == null) {
-			renderer = new PanoramaRenderer(vertex, fragment);
+	public PanoramaRenderer compile() {
+		try {
+			return new PanoramaShaderRenderer(vertex, fragment);
+		} catch (Exception exception) {
+			PanoramaClient.LOGGER.error("Failed to create panorama renderer!", exception);
 		}
 
-		return renderer;
+		return new PanoramaFallbackRenderer(0xEF323D, 0xFFFFFF);
 	}
 
 }

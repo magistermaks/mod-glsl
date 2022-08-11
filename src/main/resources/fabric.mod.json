@@ -1,6 +1,6 @@
 {
 	"schemaVersion": 1,
-	"id": "glslmc",
+	"id": "glsl_panorama",
 	"version": "${version}",
 	"name": "GLSL Panorama",
 	"description": "Allows resource packs to add GLSL shaders for the title screen panorama",
@@ -11,7 +11,7 @@
 		"website": "darktree.net"
 	},
 	"license": "MIT",
-	"icon": "assets/glslmc/icon.png",
+	"icon": "assets/glsl_panorama/icon.png",
 	"environment": "client",
 	"entrypoints": {
 		"client": [
@@ -19,7 +19,7 @@
 		]
 	},
 	"mixins": [
-		"glslmc.mixins.json"
+		"glsl_panorama.mixins.json"
 	],
 	"depends": {
 		"fabricloader": ">=0.14.9",

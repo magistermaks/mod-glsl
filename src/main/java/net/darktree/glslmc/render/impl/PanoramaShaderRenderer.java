@@ -6,14 +6,18 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.darktree.glslmc.render.PanoramaRenderer;
 import net.minecraft.client.gl.GlProgramManager;
 import net.minecraft.client.gl.GlUniform;
-import net.minecraft.client.render.*;
-import org.lwjgl.opengl.GL33;
+import net.minecraft.client.gl.VertexBuffer;
+import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.render.VertexFormat;
+import net.minecraft.client.render.VertexFormats;
+import org.lwjgl.opengl.GL30;
 
 import java.util.Collections;
 
 public class PanoramaShaderRenderer implements PanoramaRenderer {
 
-	private final BufferBuilder buffer;
+	private final VertexBuffer buffer;
 	private final int program;
 	private final int timeLoc;
 	private final int mouseLoc;
@@ -24,7 +28,7 @@ public class PanoramaShaderRenderer implements PanoramaRenderer {
 		int vert = compileShader(vertex, GlConst.GL_VERTEX_SHADER);
 		int frag = compileShader(fragment, GlConst.GL_FRAGMENT_SHADER);
 
-		this.buffer = Tessellator.getInstance().getBuffer();
+		this.buffer = new VertexBuffer();;
 		this.program = GlStateManager.glCreateProgram();
 
 		GlStateManager.glAttachShader(program, vert);
@@ -40,6 +44,19 @@ public class PanoramaShaderRenderer implements PanoramaRenderer {
 		// free now unused resources
 		GlStateManager.glDeleteShader(vert);
 		GlStateManager.glDeleteShader(frag);
+
+		// bake buffer data
+		BufferBuilder builder = Tessellator.getInstance().getBuffer();
+		builder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION);
+		builder.vertex(-1.0f, -1.0f,  1.0f).next();
+		builder.vertex(1.0f, -1.0f,  1.0f).next();
+		builder.vertex(1.0f,  1.0f,  1.0f).next();
+		builder.vertex(-1.0f,  1.0f,  1.0f).next();
+		builder.end();
+
+		buffer.bind();
+		buffer.upload(builder);
+		VertexBuffer.unbind();
 
 		// load uniforms
 		this.timeLoc = GlUniform.getUniformLocation(this.program, "time");
@@ -67,26 +84,19 @@ public class PanoramaShaderRenderer implements PanoramaRenderer {
 		GlProgramManager.useProgram(this.program);
 
 		// update uniforms
-		GL33.glUniform1f(timeLoc, time);
-		GL33.glUniform2f(mouseLoc, mouseX, mouseY);
-		GL33.glUniform2f(resolutionLoc, width, height);
-		GL33.glUniform1f(alphaLoc, alpha);
-
-		// irit, why can't we bake it? Blaze3D? more like BlazeImmediateMode
-		buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION);
-		buffer.vertex(-1.0f, -1.0f,  1.0f).next();
-		buffer.vertex(1.0f, -1.0f,  1.0f).next();
-		buffer.vertex(1.0f,  1.0f,  1.0f).next();
-		buffer.vertex(-1.0f,  1.0f,  1.0f).next();
-		buffer.end();
+		GL30.glUniform1f(timeLoc, time);
+		GL30.glUniform2f(mouseLoc, mouseX, mouseY);
+		GL30.glUniform2f(resolutionLoc, width, height);
+		GL30.glUniform1f(alphaLoc, alpha);
 
 		RenderSystem.enableBlend();
-		BufferRenderer.postDraw(this.buffer);
+		buffer.drawVertices();
 	}
 
 	@Override
 	public void close() {
 		GlStateManager.glDeleteProgram(this.program);
+		buffer.close();
 	}
 
 }

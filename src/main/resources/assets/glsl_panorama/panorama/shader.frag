@@ -1,127 +1,370 @@
+// CC0 - Neonwave sunrise
+//  Inspired by a tweet by I wanted to create something that looked
+//  a bit like the tweet. This is the result.
+
 uniform float time;
-uniform vec2 resolution;
 uniform float alpha;
+uniform vec2 resolution;
 
-float det = .001, t, boxhit;
-vec3 adv, boxp;
+#define TIME          time*2
+#define PI            3.141592654
+#define TAU           (2.0*PI)
 
+out vec4 fragment;
+
+// License: WTFPL, author: sam hocevar, found: https://stackoverflow.com/a/17897228/418488
+const vec4 hsv2rgb_K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+vec3 hsv2rgb(vec3 c) {
+    vec3 p = abs(fract(c.xxx + hsv2rgb_K.xyz) * 6.0 - hsv2rgb_K.www);
+    return c.z * mix(hsv2rgb_K.xxx, clamp(p - hsv2rgb_K.xxx, 0.0, 1.0), c.y);
+}
+
+// License: WTFPL, author: sam hocevar, found: https://stackoverflow.com/a/17897228/418488
+//  Macro version of above to enable compile-time constants
+vec3 HSV2RGB(vec3 c) {
+    return (c.z * mix(hsv2rgb_K.xxx, clamp(abs(fract(c.xxx + hsv2rgb_K.xyz) * 6.0 - hsv2rgb_K.www) - hsv2rgb_K.xxx, 0.0, 1.0), c.y));
+}
+
+// License: Unknown, author: Unknown, found: don't remember
+vec4 alphaBlend(vec4 back, vec4 front) {
+    float w = front.w + back.w*(1.0-front.w);
+    vec3 xyz = (front.xyz*front.w + back.xyz*back.w*(1.0-front.w))/w;
+    return w > 0.0 ? vec4(xyz, w) : vec4(0.0);
+}
+
+// License: Unknown, author: Unknown, found: don't remember
+vec3 alphaBlend(vec3 back, vec4 front) {
+    return mix(back, front.xyz, front.w);
+}
+
+// License: Unknown, author: Unknown, found: don't remember
+float tanh_approx(float x) {
+    //  Found this somewhere on the interwebs
+    //  return tanh(x);
+    float x2 = x*x;
+    return clamp(x*(27.0 + x2)/(27.0+9.0*x2), -1.0, 1.0);
+}
+
+// License: Unknown, author: Unknown, found: don't remember
+float hash(float co) {
+    return fract(sin(co*12.9898) * 13758.5453);
+}
+
+// License: Unknown, author: Unknown, found: don't remember
 float hash(vec2 p) {
-    vec3 p3 = fract(vec3(p.xyx) * .1031);
-    p3 += dot(p3, p3.yzx + 33.33);
-    return fract((p3.x + p3.y) * p3.z);
+    float a = dot (p, vec2 (127.1, 311.7));
+    return fract(sin(a)*43758.5453123);
 }
 
-mat2 rot(float a) {
-    float s=sin(a), c=cos(a);
-    return mat2(c,s,-s,c);
+// Value noise: https://iquilezles.org/articles/morenoise
+float vnoise(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+
+    vec2 u = f*f*(3.0-2.0*f);
+
+    float a = hash(i + vec2(0.0,0.0));
+    float b = hash(i + vec2(1.0,0.0));
+    float c = hash(i + vec2(0.0,1.0));
+    float d = hash(i + vec2(1.0,1.0));
+
+    float m0 = mix(a, b, u.x);
+    float m1 = mix(c, d, u.x);
+    float m2 = mix(m0, m1, u.y);
+
+    return m2;
 }
 
-vec3 path(float t) {
-    vec3 p = vec3(vec2(sin(t*.1), cos(t*.05)) * 10., t);
-    p.x += smoothstep(.0, .5, abs(.5 - fract(t * .02))) * 10.0;
-    return p;
+// License: MIT, author: Inigo Quilez, found: https://iquilezles.org/www/articles/spherefunctions/spherefunctions.htm
+vec2 raySphere(vec3 ro, vec3 rd, vec4 sph) {
+    vec3 oc = ro - sph.xyz;
+    float b = dot( oc, rd );
+    float c = dot( oc, oc ) - sph.w*sph.w;
+    float h = b*b - c;
+    if( h<0.0 ) return vec2(-1.0);
+    h = sqrt( h );
+    return vec2(-b - h, -b + h);
 }
 
-float fractal(vec2 p) {
-    p = abs(5. - mod(p*.2, 10.)) - 5.;
-    float ot = 1000.;
+// License: MIT OR CC-BY-NC-4.0, author: mercury, found: https://mercury.sexy/hg_sdf/
+float mod1(inout float p, float size) {
+    float halfsize = size*0.5;
+    float c = floor((p + halfsize)/size);
+    p = mod(p + halfsize, size) - halfsize;
+    return c;
+}
 
-    for (int i = 0; i < 7; i++) {
-        p = abs(p) / clamp(p.x * p.y, .25, 2.) - 1.;
+// License: MIT OR CC-BY-NC-4.0, author: mercury, found: https://mercury.sexy/hg_sdf/
+vec2 mod2(inout vec2 p, vec2 size) {
+    vec2 c = floor((p + size*0.5)/size);
+    p = mod(p + size*0.5,size) - size*0.5;
+    return c;
+}
 
-        if (i > 0){
-            ot = min(ot, abs(p.x) + .7 * fract(abs(p.y) * .05 + t * .05 + float(i) * .3));
-        }
+// License: Unknown, author: Unknown, found: don't remember
+vec2 hash2(vec2 p) {
+    p = vec2(dot (p, vec2 (127.1, 311.7)), dot (p, vec2 (269.5, 183.3)));
+    return fract(sin(p)*43758.5453123);
+}
+
+float hifbm(vec2 p) {
+    const float aa = 0.5;
+    const float pp = 2.0-0.;
+
+    float sum = 0.0;
+    float a   = 1.0;
+
+    for (int i = 0; i < 5; ++i) {
+        sum += a*vnoise(p);
+        a *= aa;
+        p *= pp;
     }
 
-    return exp(-10. * ot);
+    return sum;
 }
 
-float box(vec3 p, vec3 l) {
-    vec3 c = abs(p) - l;
-    return length(max(vec3(0.), c)) + min(0., max(c.x, max(c.y, c.z)));
-}
+float lofbm(vec2 p) {
+    const float aa = 0.5;
+    const float pp = 2.0-0.;
 
-float de(vec3 p) {
-    boxhit = 0.;
-    vec3 p2 = p - adv;
-    p2.xz *= rot(t * .2);
-    p2.xy *= rot(t * .1);
-    p2.yz *= rot(t * .15);
+    float sum = 0.0;
+    float a   = 1.0;
 
-    float b = box(p2, vec3(1.));
-    p.xy -= path(p.z).xy;
-
-    float s=sign(p.y);
-    p.y = -abs(p.y) - 3.;
-    p.z = mod(p.z, 20.) - 10.;
-
-    for (int i = 0; i < 5; i++) {
-        p=abs(p)-1.;
-        p.xz*=rot(radians(s*-45.));
-        p.yz*=rot(radians(90.));
+    for (int i = 0; i < 2; ++i) {
+        sum += a*vnoise(p);
+        a *= aa;
+        p *= pp;
     }
 
-    float f=-box(p,vec3(5.,5.,10.));
-    float d=min(f,b);
-
-    if (d==b) {
-        boxp = p2;
-        boxhit = 1.;
-    }
-
-    return d * .7;
+    return sum;
 }
 
-vec3 march(vec3 from, vec3 dir) {
+float hiheight(vec2 p) {
+    return hifbm(p)-1.8;
+}
 
-    vec3 p, n, g = vec3(0.);
-    float d, td = 0.;
+float loheight(vec2 p) {
+    return lofbm(p)-2.15;
+}
 
-    for (int i = 0; i < 80; i++) {
-        p = from + td * dir;
-        d = de(p) * (1. - hash(gl_FragCoord.xy + t) * .3);
+vec4 plane(vec3 ro, vec3 rd, vec3 pp, vec3 npp, vec3 off, float n) {
+    float h = hash(n);
+    float s = mix(0.05, 0.25, h);
 
-        if (d < det && boxhit < .5) {
+    vec3 hn;
+    vec2 p = (pp-off*2.0*vec3(1.0, 1.0, 0.0)).xy;
+
+    const vec2 stp = vec2(0.5, 0.33);
+    float he    = hiheight(vec2(p.x, pp.z)*stp);
+    float lohe  = loheight(vec2(p.x, pp.z)*stp);
+
+    float d = p.y-he;
+    float lod = p.y - lohe;
+
+    float aa = distance(pp, npp)*sqrt(1.0/3.0);
+    float t = smoothstep(aa, -aa, d);
+
+    float df = exp(-0.1*(distance(ro, pp)-2.));
+    vec3 acol = hsv2rgb(vec3(mix(0.9, 0.6, df), 0.9, mix(1.0, 0.0, df)));
+    vec3 gcol = hsv2rgb(vec3(0.6, 0.5, tanh_approx(exp(-mix(2.0, 8.0, df)*lod))));
+
+    vec3 col = vec3(0.0);
+    col += acol;
+    col += 0.5*gcol;
+
+    return vec4(col, t);
+}
+
+vec3 stars(vec2 sp, float hh) {
+    vec3 scol0 = HSV2RGB(vec3(0.85, 0.8, 1.0));
+    vec3 scol1 = HSV2RGB(vec3(0.65, 0.5, 1.0));
+    vec3 col = vec3(0.0);
+
+    const float m = 6.0;
+
+    for (float i = 0.0; i < m; ++i) {
+        vec2 pp = sp+0.5*i;
+        float s = i/(m-1.0);
+        vec2 dim  = vec2(mix(0.05, 0.003, s)*PI);
+        vec2 np = mod2(pp, dim);
+        vec2 h = hash2(np+127.0+i);
+        vec2 o = -1.0+2.0*h;
+        float y = sin(sp.x);
+        pp += o*dim*0.5;
+        pp.y *= y;
+        float l = length(pp);
+
+        float h1 = fract(h.x*1667.0);
+        float h2 = fract(h.x*1887.0);
+        float h3 = fract(h.x*2997.0);
+
+        vec3 scol = mix(8.0*h2, 0.25*h2*h2, s)*mix(scol0, scol1, h1*h1);
+
+        vec3 ccol = col + exp(-(mix(6000.0, 2000.0, hh)/mix(2.0, 0.25, s))*max(l-0.001, 0.0))*scol;
+        ccol *= mix(0.125, 1.0, smoothstep(1.0, 0.99, sin(0.25*TIME+TAU*h.y)));
+        col = h3 < y ? ccol : col;
+    }
+
+    return col;
+}
+
+vec3 toSpherical(vec3 p) {
+    float r   = length(p);
+    float t   = acos(p.z/r);
+    float ph  = atan(p.y, p.x);
+    return vec3(r, t, ph);
+}
+
+const vec3 lpos   = 1E6*vec3(0., -0.15, 1.0);
+const vec3 ldir   = normalize(lpos);
+
+vec4 moon(vec3 ro, vec3 rd) {
+    const vec4 mdim   = vec4(1E5*vec3(0., 0.4, 1.0), 20000.0);
+    vec3 mcol0  = HSV2RGB(vec3(0.75, 0.7, 1.0));
+    vec3 mcol3  = HSV2RGB(vec3(0.75, 0.55, 1.0));
+
+    vec2 md     = raySphere(ro, rd, mdim);
+    vec3 mpos   = ro + rd*md.x;
+    vec3 mnor   = normalize(mpos-mdim.xyz);
+    float mdif  = max(dot(ldir, mnor), 0.0);
+    float mf    = smoothstep(0.0, 10000.0, md.y - md.x);
+    float mfre  = 1.0+dot(rd, mnor);
+    float imfre = 1.0-mfre;
+
+    vec3 col = vec3(0.0);
+    col += mdif*mcol0*4.0;
+
+    return vec4(col, mf);
+}
+
+
+vec3 skyColor(vec3 ro, vec3 rd) {
+    vec3 acol   = HSV2RGB(vec3(0.6, 0.9, 0.075));
+    const vec3 lpos   = 1E6*vec3(0., -0.15, 1.0);
+    vec3 lcol   = HSV2RGB(vec3(0.75, 0.8, 1.0));
+
+    vec2 sp     = toSpherical(rd.xzy).yz;
+
+    float lf    = pow(max(dot(ldir, rd), 0.0), 80.0);
+    float li    = 0.02*mix(1.0, 10.0, lf)/(abs((rd.y+0.055))+0.025);
+    float lz    = step(-0.055, rd.y);
+
+    vec4 mcol   = moon(ro, rd);
+
+    vec3 col = vec3(0.0);
+    col += stars(sp, 0.25)*smoothstep(0.5, 0.0, li)*lz;
+    col  = mix(col, mcol.xyz, mcol.w);
+    col += smoothstep(-0.4, 0.0, (sp.x-PI*0.5))*acol;
+    col += tanh(lcol*li);
+    return col;
+}
+
+vec3 color(vec3 ww, vec3 uu, vec3 vv, vec3 ro, vec2 p) {
+    float lp = length(p);
+    vec2 np = p + 2.0/resolution.y;
+    //  float rdd = (2.0-1.0*tanh_approx(lp));  // Playing around with rdd can give interesting distortions
+    float rdd = 2.0;
+    vec3 rd = normalize(p.x*uu + p.y*vv + rdd*ww);
+    vec3 nrd = normalize(np.x*uu + np.y*vv + rdd*ww);
+
+    const float planeDist = 1.0;
+    const int furthest = 12;
+    const int fadeFrom = max(furthest-2, 0);
+
+    const float fadeDist = planeDist*float(fadeFrom);
+    const float maxDist  = planeDist*float(furthest);
+    float nz = floor(ro.z / planeDist);
+
+    vec3 skyCol = skyColor(ro, rd);
+
+
+    vec4 acol = vec4(0.0);
+    const float cutOff = 0.95;
+    bool cutOut = false;
+
+    // Steps from nearest to furthest plane and accumulates the color
+    for (int i = 1; i <= furthest; ++i) {
+        float pz = planeDist*nz + planeDist*float(i);
+
+        float pd = (pz - ro.z)/rd.z;
+
+        vec3 pp = ro + rd*pd;
+
+        if (pp.y < 0. && pd > 0.0 && acol.w < cutOff) {
+            vec3 npp = ro + nrd*pd;
+
+            vec3 off = vec3(0.0);
+
+            vec4 pcol = plane(ro, rd, pp, npp, off, nz+float(i));
+
+            float nz = pp.z-ro.z;
+            float fadeIn = smoothstep(maxDist, fadeDist, pd);
+            pcol.xyz = mix(skyCol, pcol.xyz, fadeIn);
+            //      pcol.w *= fadeOut;
+            pcol = clamp(pcol, 0.0, 1.0);
+
+            acol = alphaBlend(pcol, acol);
+        } else {
+            cutOut = true;
+            acol.w = acol.w > cutOff ? 1.0 : acol.w;
             break;
         }
 
-        td += max(det, abs(d));
-        float f = fractal(p.xy)+fractal(p.xz)+fractal(p.yz);
-        float b = fractal(boxp.xy)+fractal(boxp.xz)+fractal(boxp.yz);
-        vec3 colf = vec3(f*f, f, f * f * f);
-        vec3 colb = vec3(b + .1, b * b + .05, 0.);
-        g += colf / (3. + d * d * 2.) * exp(-.0015 * td * td) * step(5., td) / 2. * (1. - boxhit);
-        g += colb / (10. + d * d * 20.) * boxhit * .5;
     }
 
-    return g;
+    vec3 col = alphaBlend(skyCol, acol);
+
+    // To debug cutouts due to transparency
+    //  col += cutOut ? vec3(1.0, -1.0, 0.0) : vec3(0.0);
+    return col;
 }
 
-mat3 lookat(vec3 dir, vec3 up) {
-    dir = normalize(dir);
-    vec3 rt = normalize(cross(dir, normalize(up)));
+vec3 effect(vec2 p, vec2 q) {
+    float tm= TIME*0.25;
+    vec3 ro = vec3(0.0, 0.0, tm);
+    vec3 dro= normalize(vec3(0.0, 0.09, 1.0));
+    vec3 ww = normalize(dro);
+    vec3 uu = normalize(cross(normalize(vec3(0.0,1.0,0.0)), ww));
+    vec3 vv = normalize(cross(ww, uu));
 
-    return mat3(rt, cross(rt, dir), dir);
+    vec3 col = color(ww, uu, vv, ro, p);
+
+    return col;
 }
 
-void mainImage(out vec4 fragColor, in vec2 fragCoord) {
-    vec2 uv = (fragCoord - resolution.xy * 0.25) / resolution.y;
-    t = time * 7.;
-
-    vec3 from = path(t);
-    adv = path(t + 6. +sin(t * .1) * 3.);
-
-    vec3 dir=normalize(vec3(uv, .7));
-    dir = lookat(adv - from,vec3(0., 1., 0.)) * dir;
-
-    vec3 col = march(from, dir);
-    fragColor = vec4(col, 1.0);
+// License: Unknown, author: nmz (twitter: @stormoid), found: https://www.shadertoy.com/view/NdfyRM
+float sRGB(float t) {
+    return mix(1.055*pow(t, 1./2.4) - 0.055, 12.92*t, step(t, 0.0031308));
 }
 
+// License: Unknown, author: nmz (twitter: @stormoid), found: https://www.shadertoy.com/view/NdfyRM
+vec3 sRGB(in vec3 c) {
+    return vec3 (sRGB(c.x), sRGB(c.y), sRGB(c.z));
+}
+
+// License: Unknown, author: Matt Taylor (https://github.com/64), found: https://64.github.io/tonemapping/
+vec3 aces_approx(vec3 v) {
+    v = max(v, 0.0);
+    v *= 0.6f;
+    float a = 2.51f;
+    float b = 0.03f;
+    float c = 2.43f;
+    float d = 0.59f;
+    float e = 0.14f;
+
+    return clamp((v*(a*v+b))/(v*(c*v+d)+e), 0.0f, 1.0f);
+}
 
 void main() {
-    gl_FragColor = vec4(1.5, 20.0, 3.0, 1.0);
-    mainImage(gl_FragColor, gl_FragCoord.xy);
-    gl_FragColor.a = alpha;
+    vec2 q = gl_FragCoord.xy/resolution.xy;
+    vec2 p = -1. + 2. * q;
+    p.x *= resolution.x/resolution.y;
+
+    vec3 col = vec3(0.0);
+    col = effect(p, q);
+    col *= smoothstep(0.0, 8.0, TIME-abs(q.y));
+    col = aces_approx(col);
+    col = sRGB(col);
+
+    fragment = vec4(col, alpha);
 }

@@ -3,7 +3,6 @@
 //  a bit like the tweet. This is the result.
 
 uniform float time;
-uniform float alpha;
 uniform vec2 resolution;
 
 #define TIME          time*2
@@ -366,5 +365,5 @@ void main() {
     col = aces_approx(col);
     col = sRGB(col);
 
-    fragment = vec4(col, alpha);
+    fragment = vec4(col, 1);
 }

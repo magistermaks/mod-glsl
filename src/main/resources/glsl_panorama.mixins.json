@@ -4,7 +4,8 @@
 	"package": "net.darktree.glslmc.mixin",
 	"compatibilityLevel": "JAVA_16",
 	"client": [
-		"RotatingCubeMapRendererMixin"
+		"RotatingCubeMapRendererMixin",
+		"KeyboardMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

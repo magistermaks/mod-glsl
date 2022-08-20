@@ -22,7 +22,6 @@ public class PanoramaClient implements ClientModInitializer {
 	public static final String NAMESPACE = "glsl_panorama";
 	public static final Logger LOGGER = LogManager.getLogger("GLSL Panorama");
 	private static final PanoramaResourceLoader PANORAMA = new PanoramaResourceLoader();
-	public static final KeyBinding RELOAD_KEYBIND =  new KeyBinding("key.glsl_panorama.shader_reload", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_R, "category.glsl_panorama.keys");
 
 	private static PanoramaShader shader;
 	private static PanoramaRenderer renderer;
@@ -30,7 +29,6 @@ public class PanoramaClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(PANORAMA);
-		KeyBindingHelper.registerKeyBinding(RELOAD_KEYBIND);
 	}
 
 	public static Identifier id(String name) {

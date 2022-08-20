@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(RotatingCubeMapRenderer.class)
-public class RotatingCubeMapRendererMixin {
+public abstract class RotatingCubeMapRendererMixin {
 
 	@Shadow private float time;
 

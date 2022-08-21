@@ -11,14 +11,17 @@ import net.minecraft.util.math.Matrix4f;
 
 import java.io.Closeable;
 
-public final class ScalableCanvas implements Closeable {
+public class ScalableCanvas implements Closeable {
 
+	private final Matrix4f identity;
 	private final Framebuffer input;
 	private final Framebuffer output;
 
 	public ScalableCanvas() {
-		output = MinecraftClient.getInstance().getFramebuffer();
-		input = new SimpleFramebuffer(output.textureWidth, output.textureHeight, false, false);
+		this.identity = new Matrix4f();
+		this.identity.loadIdentity();
+		this.output = MinecraftClient.getInstance().getFramebuffer();
+		this.input = new SimpleFramebuffer(output.textureWidth, output.textureHeight, false, false);
 	}
 
 	public void resize(int width, int height) {
@@ -37,7 +40,7 @@ public final class ScalableCanvas implements Closeable {
 	}
 
 	public void write() {
-		input.beginWrite(false);
+		input.beginWrite(true);
 	}
 
 	public void blit(VertexBuffer buffer, float alpha) {
@@ -46,11 +49,8 @@ public final class ScalableCanvas implements Closeable {
 		RenderSystem.setShaderTexture(0, input.getColorAttachment());
 		RenderSystem.setShaderColor(1, 1, 1, alpha);
 
-		Matrix4f matrix = new Matrix4f();
-		matrix.loadIdentity();
-
 		RenderSystem.enableBlend();
-		buffer.setShader(matrix, matrix, GameRenderer.getPositionTexColorShader());
+		buffer.setShader(identity, identity, GameRenderer.getPositionTexColorShader());
 	}
 
 	@Override

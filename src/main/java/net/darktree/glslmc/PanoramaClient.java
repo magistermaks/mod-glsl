@@ -13,7 +13,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 @Environment(EnvType.CLIENT)
-public final class PanoramaClient implements ClientModInitializer {
+public class PanoramaClient implements ClientModInitializer {
 
 	public static final String NAMESPACE = "glsl_panorama";
 	public static final Logger LOGGER = LogManager.getLogger("GLSL Panorama");

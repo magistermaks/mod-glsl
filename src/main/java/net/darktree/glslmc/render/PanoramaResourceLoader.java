@@ -13,7 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
-public final class PanoramaResourceLoader implements SimpleResourceReloadListener<PanoramaShader> {
+public class PanoramaResourceLoader implements SimpleResourceReloadListener<PanoramaShader> {
 
 	private static final Identifier VERTEX = PanoramaClient.id("panorama/shader.vert");
 	private static final Identifier FRAGMENT = PanoramaClient.id("panorama/shader.frag");

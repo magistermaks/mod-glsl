@@ -1,4 +1,7 @@
 {
 	"error.glsl_panorama.top": "Panorama shader failed to load!",
-	"error.glsl_panorama.bottom": "Check game logs to identify the problem."
+	"error.glsl_panorama.bottom": "Check game logs to identify the problem.",
+	"options.glsl_panorama.enabled": "Shaders",
+	"options.glsl_panorama.quality": "Quality: %s%%",
+	"screen.glsl_panorama.title": "Panorama Settings"
 }

@@ -1,5 +1,6 @@
 package net.darktree.glslmc.mixin;
 
+import net.darktree.glslmc.settings.ShaderSettingsScreen;
 import net.minecraft.client.Keyboard;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.TitleScreen;
@@ -23,7 +24,8 @@ public abstract class KeyboardMixin {
 		// force resource reload from the title screen
 		// helpfully when making/debugging shaders
 		if (key == InputUtil.GLFW_KEY_F5 && action == GLFW.GLFW_RELEASE && this.client.currentScreen instanceof TitleScreen) {
-			this.client.reloadResources();
+			//this.client.reloadResources();
+			this.client.setScreen(new ShaderSettingsScreen());
 		}
 
 	}

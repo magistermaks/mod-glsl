@@ -1,4 +1,7 @@
 {
 	"error.glsl_panorama.top": "Przy kompilacji shadera panoramy wystąpił błąd!",
-	"error.glsl_panorama.bottom": "Sprawdź logi gry, aby zidentyfikować problem."
+	"error.glsl_panorama.bottom": "Sprawdź logi gry, aby zidentyfikować problem.",
+	"options.glsl_panorama.enable": "Shadery",
+	"options.glsl_panorama.quality": "Jakość: %s%%",
+	"screen.glsl_panorama.title": "Ustawienia panoramy"
 }

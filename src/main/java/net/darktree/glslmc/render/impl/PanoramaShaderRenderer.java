@@ -5,6 +5,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.darktree.glslmc.render.PanoramaRenderer;
 import net.darktree.glslmc.render.ScalableCanvas;
+import net.darktree.glslmc.settings.Options;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.GlProgramManager;
 import net.minecraft.client.gl.GlUniform;
@@ -93,7 +94,7 @@ public final class PanoramaShaderRenderer implements PanoramaRenderer {
 	public void draw(float time, float mouseX, float mouseY, int width, int height, float alpha) {
 		GlProgramManager.useProgram(this.program);
 
-		float scale = 1.0f;
+		float scale = (float) Options.quality;
 		canvas.resize((int) (width * scale), (int) (height * scale));
 		canvas.write();
 

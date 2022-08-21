@@ -1,6 +1,7 @@
 package net.darktree.glslmc.mixin;
 
 import net.darktree.glslmc.PanoramaClient;
+import net.darktree.glslmc.settings.Options;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.CubeMapRenderer;
 import net.minecraft.client.gui.RotatingCubeMapRenderer;
@@ -17,14 +18,18 @@ public abstract class RotatingCubeMapRendererMixin {
 
 	@Redirect(method="render", at=@At(value="INVOKE", target="Lnet/minecraft/client/gui/CubeMapRenderer;draw(Lnet/minecraft/client/MinecraftClient;FFF)V"))
 	public void glsl_render(CubeMapRenderer instance, MinecraftClient client, float x, float y, float alpha) {
-		Window window = client.getWindow();
+		if (Options.enabled) {
+			Window window = client.getWindow();
 
-		int width = window.getWidth();
-		int height = window.getHeight();
-		float mx = (float) client.mouse.getX() / (float) width;
-		float my = (float) client.mouse.getY() / (float) height;
+			int width = window.getWidth();
+			int height = window.getHeight();
+			float mx = (float) client.mouse.getX() / (float) width;
+			float my = (float) client.mouse.getY() / (float) height;
 
-		PanoramaClient.getRenderer().draw(this.time / 60, mx, my, width, height, alpha);
+			PanoramaClient.getRenderer().draw(this.time / 60, mx, my, width, height, alpha);
+		} else {
+			instance.draw(client, x, y, alpha);
+		}
 	}
 
 }

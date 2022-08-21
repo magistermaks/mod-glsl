@@ -65,9 +65,10 @@ public final class PanoramaShaderRenderer implements PanoramaRenderer {
 		builder.vertex( 1.0f, -1.0f,  1.0f).texture(1, 0).color(1f, 1f, 1f, 1f).next();
 		builder.vertex( 1.0f,  1.0f,  1.0f).texture(1, 1).color(1f, 1f, 1f, 1f).next();
 		builder.vertex(-1.0f,  1.0f,  1.0f).texture(0, 1).color(1f, 1f, 1f, 1f).next();
-		builder.end();
 
-		buffer.upload(builder);
+		buffer.bind();
+		buffer.upload(builder.end());
+		VertexBuffer.unbind();
 
 		// load uniforms
 		this.timeLoc = GlUniform.getUniformLocation(this.program, "time");
@@ -112,7 +113,8 @@ public final class PanoramaShaderRenderer implements PanoramaRenderer {
 		GL30.glUniform2f(resolutionLoc, canvas.width(), canvas.height());
 
 		// draw
-		buffer.drawVertices();
+		buffer.bind();
+		buffer.drawElements();
 		canvas.blit(buffer, alpha);
 	}
 

@@ -4,9 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.darktree.glslmc.PanoramaClient;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.option.CyclingOption;
-import net.minecraft.client.option.DoubleOption;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.client.option.SimpleOption;
+import net.minecraft.text.Text;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -24,13 +23,8 @@ public class Options {
 	public boolean enabled = true;
 	public double quality = 1;
 
-	final transient CyclingOption<Boolean> ENABLED = CyclingOption.create(ENABLED_KEY, gameOptions -> enabled, (gameOptions, option, enable) -> {
-		this.enabled = enable;
-	});
-
-	final transient DoubleOption QUALITY = new DoubleOption(QUALITY_KEY, 0.05, 1.0, 0.0f, gameOptions -> quality, (gameOptions, quality) -> {
-		this.quality = quality;
-	}, (gameOptions, option) -> new TranslatableText(QUALITY_KEY, (int) (quality * 100)));
+	public final static SimpleOption<Boolean> ENABLED = SimpleOption.ofBoolean(ENABLED_KEY, Options.get().enabled, value -> Options.get().enabled = value);
+	public final static SimpleOption<Double> QUALITY = new SimpleOption<>(QUALITY_KEY, SimpleOption.emptyTooltip(), (text, value) -> Text.translatable(QUALITY_KEY, (int) (value * 100)), SimpleOption.DoubleSliderCallbacks.INSTANCE, Options.get().quality, value -> Options.get().quality = value);
 
 	/**
 	 * Get options instance

@@ -4,33 +4,32 @@ import net.darktree.glslmc.PanoramaClient;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.client.gui.widget.ButtonListWidget;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 
 public class ShaderSettingsScreen extends Screen {
 
-	private static final Text NOTE = new TranslatableText("screen.glsl_panorama.note").formatted(Formatting.GRAY);
-	private static final Text RELOAD = new TranslatableText("screen.glsl_panorama.reload");
+	private static final Text NOTE = Text.translatable("screen.glsl_panorama.note").formatted(Formatting.GRAY);
+	private static final Text RELOAD = Text.translatable("screen.glsl_panorama.reload");
 	private final Screen parent;
 
 	public ShaderSettingsScreen() {
-		super(new TranslatableText("screen.glsl_panorama.title"));
+		super(Text.translatable("screen.glsl_panorama.title"));
 		parent = MinecraftClient.getInstance().currentScreen;
 	}
 
 	@Override
 	protected void init() {
 		ButtonListWidget options = new ButtonListWidget(this.client, this.width, this.height, 32, this.height - 32, 25);
-		options.addOptionEntry(Options.get().ENABLED, Options.get().QUALITY);
+		options.addOptionEntry(Options.ENABLED, Options.QUALITY);
 
 		this.addDrawableChild(options);
 
-		this.addDrawableChild(new ButtonWidget(this.width / 2 + 4, this.height - 27, 150, 20, ScreenTexts.DONE, button -> this.onClose()));
+		this.addDrawableChild(new ButtonWidget(this.width / 2 + 4, this.height - 27, 150, 20, ScreenTexts.DONE, button -> this.close()));
 		this.addDrawableChild(new ButtonWidget(this.width / 2 - 154, this.height - 27, 150, 20, RELOAD, button -> {
 			client.reloadResources();
 		}));
@@ -55,7 +54,7 @@ public class ShaderSettingsScreen extends Screen {
 	}
 
 	@Override
-	public void onClose() {
+	public void close() {
 		this.client.setScreen(this.parent);
 	}
 

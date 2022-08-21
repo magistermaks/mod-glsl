@@ -13,6 +13,7 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
@@ -49,15 +50,21 @@ public class PanoramaResourceLoader implements SimpleResourceReloadListener<Pano
 	}
 
 	private String loadStringResource(ResourceManager manager, Identifier identifier) {
-		try (Resource resource = manager.getResource(identifier)){
-			return IOUtils.toString(resource.getInputStream(), StandardCharsets.UTF_8);
-		} catch (IOException exception) {
-			return "";
+		Optional<Resource> resource = manager.getResource(identifier);
+
+		if (resource.isPresent()) {
+			try {
+				return IOUtils.toString(resource.get().getInputStream(), StandardCharsets.UTF_8);
+			} catch (IOException exception) {
+				PanoramaClient.LOGGER.error("Filed to open input stream!", exception);
+			}
 		}
+
+		return "";
 	}
 
 	private Identifier getTexture(ResourceManager manager) {
-		return manager.containsResource(TEXTURE) ? TEXTURE : null;
+		return manager.getResource(TEXTURE).isPresent() ? TEXTURE : null;
 	}
 
 	@Override

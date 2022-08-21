@@ -20,14 +20,9 @@ public abstract class KeyboardMixin {
 
 	@Inject(method="onKey", at=@At("TAIL"))
 	public void glsl_onKey(long window, int key, int scancode, int action, int modifiers, CallbackInfo info) {
-
-		// force resource reload from the title screen
-		// helpfully when making/debugging shaders
 		if (key == InputUtil.GLFW_KEY_F5 && action == GLFW.GLFW_RELEASE && this.client.currentScreen instanceof TitleScreen) {
-			//this.client.reloadResources();
 			this.client.setScreen(new ShaderSettingsScreen());
 		}
-
 	}
 
 }

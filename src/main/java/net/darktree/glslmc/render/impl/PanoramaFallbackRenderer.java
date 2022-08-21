@@ -5,16 +5,15 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.darktree.glslmc.render.PanoramaRenderer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.hud.BackgroundHelper;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.util.math.ColorHelper;
 
 public final class PanoramaFallbackRenderer implements PanoramaRenderer {
 
 	private static final MatrixStack IDENTITY = new MatrixStack();
-	private static final Text TEXT_TOP = new TranslatableText("error.glsl_panorama.top");
-	private static final Text TEXT_BOTTOM = new TranslatableText("error.glsl_panorama.bottom");
+	private static final Text TEXT_TOP = Text.translatable("error.glsl_panorama.top");
+	private static final Text TEXT_BOTTOM = Text.translatable("error.glsl_panorama.bottom");
 
 	private final TextRenderer font;
 	private final float r, g, b;
@@ -23,9 +22,9 @@ public final class PanoramaFallbackRenderer implements PanoramaRenderer {
 	public PanoramaFallbackRenderer(int background, int foreground) {
 		this.font = MinecraftClient.getInstance().textRenderer;
 
-		this.r = BackgroundHelper.ColorMixer.getRed(background) / 255.0f;
-		this.g = BackgroundHelper.ColorMixer.getGreen(background) / 255.0f;
-		this.b = BackgroundHelper.ColorMixer.getBlue(background) / 255.0f;
+		this.r = ColorHelper.Argb.getRed(background) / 255.0f;
+		this.g = ColorHelper.Argb.getGreen(background) / 255.0f;
+		this.b = ColorHelper.Argb.getBlue(background) / 255.0f;
 		this.foreground = foreground;
 	}
 

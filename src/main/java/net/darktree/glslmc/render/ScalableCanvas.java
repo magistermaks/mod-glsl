@@ -50,7 +50,7 @@ public class ScalableCanvas implements Closeable {
 		RenderSystem.setShaderColor(1, 1, 1, alpha);
 
 		RenderSystem.enableBlend();
-		buffer.setShader(identity, identity, GameRenderer.getPositionTexColorShader());
+		buffer.draw(identity, identity, GameRenderer.getPositionTexColorShader());
 	}
 
 	@Override

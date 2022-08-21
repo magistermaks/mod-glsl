@@ -5,7 +5,7 @@ import net.darktree.glslmc.render.impl.PanoramaFallbackRenderer;
 import net.darktree.glslmc.render.impl.PanoramaShaderRenderer;
 import net.minecraft.util.Identifier;
 
-public class PanoramaShader {
+public final class PanoramaShader {
 
 	private final String vertex;
 	private final String fragment;

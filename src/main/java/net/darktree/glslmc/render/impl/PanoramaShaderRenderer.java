@@ -4,16 +4,22 @@ import com.mojang.blaze3d.platform.GlConst;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.darktree.glslmc.render.PanoramaRenderer;
+import net.darktree.glslmc.render.ScalableCanvas;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.*;
-import net.minecraft.client.render.*;
+import net.minecraft.client.gl.GlProgramManager;
+import net.minecraft.client.gl.GlUniform;
+import net.minecraft.client.gl.VertexBuffer;
+import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.render.VertexFormat;
+import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.texture.TextureManager;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Matrix4f;
 import org.lwjgl.opengl.GL30;
 
 import java.util.Collections;
 
-public class PanoramaShaderRenderer implements PanoramaRenderer {
+public final class PanoramaShaderRenderer implements PanoramaRenderer {
 
 	private final VertexBuffer buffer;
 	private final Identifier texture;
@@ -23,15 +29,15 @@ public class PanoramaShaderRenderer implements PanoramaRenderer {
 	private final int resolutionLoc;
 	private final int imageLoc;
 
-	private final Framebuffer shaderFramebuffer;
-	private final Framebuffer mainFramebuffer;
+	private final ScalableCanvas canvas;
+	private final TextureManager manager;
 
 	public PanoramaShaderRenderer(String vertex, String fragment, Identifier texture) {
 		int vert = compileShader(vertex, GlConst.GL_VERTEX_SHADER);
 		int frag = compileShader(fragment, GlConst.GL_FRAGMENT_SHADER);
 
-		this.mainFramebuffer = MinecraftClient.getInstance().getFramebuffer();
-		this.shaderFramebuffer = new SimpleFramebuffer(mainFramebuffer.textureWidth, mainFramebuffer.textureHeight, false, false);
+		this.canvas = new ScalableCanvas();
+		this.manager = MinecraftClient.getInstance().getTextureManager();
 
 		this.buffer = new VertexBuffer();
 		this.program = GlStateManager.glCreateProgram();
@@ -84,14 +90,16 @@ public class PanoramaShaderRenderer implements PanoramaRenderer {
 	}
 
 	@Override
-	public void draw(float time, float mouseX, float mouseY, float width, float height, float alpha) {
+	public void draw(float time, float mouseX, float mouseY, int width, int height, float alpha) {
 		GlProgramManager.useProgram(this.program);
 
-		shaderFramebuffer.beginWrite(false);
+		float scale = 0.1f;
+		canvas.resize((int) (width * scale), (int) (height * scale));
+		canvas.write();
 
 		// bind sampler is present
 		if (texture != null) {
-			MinecraftClient.getInstance().getTextureManager().bindTexture(texture);
+			manager.bindTexture(texture);
 			RenderSystem.enableTexture();
 
 			GL30.glUniform1i(imageLoc, GlStateManager._getActiveTexture());
@@ -100,28 +108,18 @@ public class PanoramaShaderRenderer implements PanoramaRenderer {
 		// update uniforms
 		GL30.glUniform1f(timeLoc, time);
 		GL30.glUniform2f(mouseLoc, mouseX, mouseY);
-		GL30.glUniform2f(resolutionLoc, shaderFramebuffer.textureWidth, shaderFramebuffer.textureHeight);
+		GL30.glUniform2f(resolutionLoc, canvas.width(), canvas.height());
 
 		// draw
 		buffer.drawVertices();
-
-		// copy into the main framebuffer
-		mainFramebuffer.beginWrite(true);
-
-		RenderSystem.setShaderTexture(0, shaderFramebuffer.getColorAttachment());
-		RenderSystem.setShaderColor(1, 1, 1, alpha);
-
-		Matrix4f matrix = new Matrix4f();
-		matrix.loadIdentity();
-
-		RenderSystem.enableBlend();
-		buffer.setShader(matrix, matrix, GameRenderer.getPositionTexColorShader());
+		canvas.blit(buffer, alpha);
 	}
 
 	@Override
 	public void close() {
 		GlStateManager.glDeleteProgram(this.program);
 		buffer.close();
+		canvas.close();
 	}
 
 }

@@ -6,18 +6,14 @@ import net.darktree.glslmc.render.PanoramaShader;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.util.InputUtil;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.lwjgl.glfw.GLFW;
 
 @Environment(EnvType.CLIENT)
-public class PanoramaClient implements ClientModInitializer {
+public final class PanoramaClient implements ClientModInitializer {
 
 	public static final String NAMESPACE = "glsl_panorama";
 	public static final Logger LOGGER = LogManager.getLogger("GLSL Panorama");

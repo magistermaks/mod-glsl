@@ -10,7 +10,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 
-public class PanoramaFallbackRenderer implements PanoramaRenderer {
+public final class PanoramaFallbackRenderer implements PanoramaRenderer {
 
 	private static final MatrixStack IDENTITY = new MatrixStack();
 	private static final Text TEXT_TOP = new TranslatableText("error.glsl_panorama.top");
@@ -30,7 +30,7 @@ public class PanoramaFallbackRenderer implements PanoramaRenderer {
 	}
 
 	@Override
-	public void draw(float time, float mouseX, float mouseY, float width, float height, float alpha) {
+	public void draw(float time, float mouseX, float mouseY, int width, int height, float alpha) {
 		RenderSystem.clearColor(r, g, b, alpha);
 		RenderSystem.clear(GlConst.GL_COLOR_BUFFER_BIT | GlConst.GL_DEPTH_BUFFER_BIT, MinecraftClient.IS_SYSTEM_MAC);
 

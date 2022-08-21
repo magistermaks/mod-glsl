@@ -2,9 +2,12 @@ package net.darktree.glslmc.render;
 
 import net.darktree.glslmc.PanoramaClient;
 import net.fabricmc.fabric.api.resource.SimpleResourceReloadListener;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Util;
+import net.minecraft.util.profiler.DummyProfiler;
 import net.minecraft.util.profiler.Profiler;
 import org.apache.commons.io.IOUtils;
 
@@ -32,6 +35,17 @@ public class PanoramaResourceLoader implements SimpleResourceReloadListener<Pano
 
 			return new PanoramaShader(vertex, fragment, getTexture(manager));
 		}, executor);
+	}
+
+	/**
+	 * Force shaders to reload even if resource reload was not triggered
+	 */
+	public void reload() {
+		MinecraftClient client = MinecraftClient.getInstance();
+		ResourceManager manager = client.getResourceManager();
+		Executor executor = Util.getMainWorkerExecutor();
+
+		load(manager, DummyProfiler.INSTANCE, executor).thenApply(shader -> apply(shader, manager, DummyProfiler.INSTANCE, executor));
 	}
 
 	private String loadStringResource(ResourceManager manager, Identifier identifier) {

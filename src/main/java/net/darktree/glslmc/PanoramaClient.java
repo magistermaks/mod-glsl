@@ -17,14 +17,14 @@ public class PanoramaClient implements ClientModInitializer {
 
 	public static final String NAMESPACE = "glsl_panorama";
 	public static final Logger LOGGER = LogManager.getLogger("GLSL Panorama");
-	private static final PanoramaResourceLoader PANORAMA = new PanoramaResourceLoader();
+	public static final PanoramaResourceLoader LOADER = new PanoramaResourceLoader();
 
 	private static PanoramaShader shader;
 	private static PanoramaRenderer renderer;
 
 	@Override
 	public void onInitializeClient() {
-		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(PANORAMA);
+		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(LOADER);
 	}
 
 	public static Identifier id(String name) {

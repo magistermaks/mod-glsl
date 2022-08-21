@@ -32,17 +32,12 @@ Your shader shouldn't contain the `#version XXX` directive, it will be added dur
 The color of the output fragment should be defined by providing an output vector and writing to it,
 but if you use the outdated `gl_FragColor` it will get converted during loading and _should_ also work.
 
-**Important**: Because of how the shaders are rendered, for the Minecraft's startup fade-in animation to work 
-the alpha component of every fragment **must** be set to the value provided by the `alpha` float uniform.
-
-A simple "Hello World" example `shader.frag`, it renders a solid green background, notice the alpha pass-thou.
+A simple "Hello World" example `shader.frag`, it renders a simple solid green background
 ```glsl
-uniform float alpha;
-
 out vec4 fragment;
 
 void main() {
-    fragment = vec4(0, 1, 0, alpha);
+    fragment = vec4(0, 1, 0, 1);
 }
 ```
 
@@ -51,7 +46,6 @@ The following uniforms are available to your shaders
 - Uniform `time` (`float`) number of second the shader has been playing for.
 - Uniform `mouse` (`vec2`) the position of the mouse, with top-left being (0,0) and bottom-right being (1,1).
 - Uniform `resolution` (`vec2`) this value should be treated as the window dimensions. 
-- Uniform `alpha` (`float`) the expected fragment alpha value, explained above.
 - Uniform `image` (`sampler2D`) texture sampler, only provided if the `texture.png` file is provided, the texture is set to repeat.  
 
 You can also use `gl_FragCoord.xy` to access the position (window-space) of the fragment that is being processed.
@@ -59,7 +53,6 @@ You can also use `gl_FragCoord.xy` to access the position (window-space) of the 
 Example shader, draws a circle around the cursor:
 ```glsl
 uniform vec2 mouse;
-uniform float alpha;
 uniform vec2 resolution;
 
 out vec4 fragment;
@@ -78,7 +71,7 @@ void main() {
     float green = (dist < 0.1) ? 1 : 0;
 
     // set the fragment color
-    fragment = vec4(0, green, 0, alpha);
+    fragment = vec4(0, green, 0, 1);
 }
 ```
 

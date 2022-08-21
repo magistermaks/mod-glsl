@@ -18,7 +18,7 @@ public abstract class RotatingCubeMapRendererMixin {
 
 	@Redirect(method="render", at=@At(value="INVOKE", target="Lnet/minecraft/client/gui/CubeMapRenderer;draw(Lnet/minecraft/client/MinecraftClient;FFF)V"))
 	public void glsl_render(CubeMapRenderer instance, MinecraftClient client, float x, float y, float alpha) {
-		if (Options.enabled) {
+		if (Options.get().enabled) {
 			Window window = client.getWindow();
 
 			int width = window.getWidth();

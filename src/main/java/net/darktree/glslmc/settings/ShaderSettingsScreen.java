@@ -1,5 +1,6 @@
 package net.darktree.glslmc.settings;
 
+import net.darktree.glslmc.PanoramaClient;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.Screen;
@@ -25,7 +26,7 @@ public class ShaderSettingsScreen extends Screen {
 	@Override
 	protected void init() {
 		ButtonListWidget options = new ButtonListWidget(this.client, this.width, this.height, 32, this.height - 32, 25);
-		options.addOptionEntry(Options.ENABLED, Options.QUALITY);
+		options.addOptionEntry(Options.get().ENABLED, Options.get().QUALITY);
 
 		this.addDrawableChild(options);
 
@@ -41,6 +42,11 @@ public class ShaderSettingsScreen extends Screen {
 		super.render(matrices, mouseX, mouseY, delta);
 		DrawableHelper.drawCenteredText(matrices, this.textRenderer, this.title, this.width / 2, 5, 0xFFFFFF);
 		DrawableHelper.drawCenteredText(matrices, this.textRenderer, NOTE, this.width / 2, 20, 0xFFFFFF);
+	}
+
+	@Override
+	public void removed() {
+		Options.get().save();
 	}
 
 	@Override

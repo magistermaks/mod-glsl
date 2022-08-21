@@ -94,7 +94,7 @@ public final class PanoramaShaderRenderer implements PanoramaRenderer {
 	public void draw(float time, float mouseX, float mouseY, int width, int height, float alpha) {
 		GlProgramManager.useProgram(this.program);
 
-		float scale = (float) Options.quality;
+		float scale = (float) Options.get().quality;
 		canvas.resize((int) (width * scale), (int) (height * scale));
 		canvas.write();
 

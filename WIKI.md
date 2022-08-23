@@ -12,8 +12,10 @@ for example how to add a custom icon to your pack.
 ```json5
 {
     // use 6 for 1.16.2-1.16.5, 7 for 1.17.x, 8 for 1.18.x, 9 for 1.19.x
-    "pack_format": 7,
-    "description": "My epic panorama shader pack"
+    "pack": {
+        "pack_format": 7,
+        "description": "My epic panorama shader pack"
+    }
 }
 ```
 Congrats you now have a valid resourcepack! If you drop that directory into the `resourcepacks` 

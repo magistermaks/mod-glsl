@@ -1,6 +1,5 @@
 package net.darktree.glslmc.settings;
 
-import net.darktree.glslmc.PanoramaClient;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.Screen;
@@ -30,9 +29,7 @@ public class ShaderSettingsScreen extends Screen {
 		this.addDrawableChild(options);
 
 		this.addDrawableChild(new ButtonWidget(this.width / 2 + 4, this.height - 27, 150, 20, ScreenTexts.DONE, button -> this.close()));
-		this.addDrawableChild(new ButtonWidget(this.width / 2 - 154, this.height - 27, 150, 20, RELOAD, button -> {
-			client.reloadResources();
-		}));
+		this.addDrawableChild(new ButtonWidget(this.width / 2 - 154, this.height - 27, 150, 20, RELOAD, button -> client.reloadResources()));
 	}
 
 	@Override

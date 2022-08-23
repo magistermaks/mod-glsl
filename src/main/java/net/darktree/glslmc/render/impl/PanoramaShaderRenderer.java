@@ -98,7 +98,7 @@ public final class PanoramaShaderRenderer implements PanoramaRenderer {
 		canvas.resize((int) (width * scale), (int) (height * scale));
 		canvas.write();
 
-		// bind sampler is present
+		// bind sampler if present
 		if (texture != null) {
 			RenderSystem.activeTexture(GlConst.GL_TEXTURE0);
 			manager.bindTexture(texture);

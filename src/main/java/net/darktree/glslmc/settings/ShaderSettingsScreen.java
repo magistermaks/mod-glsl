@@ -30,9 +30,7 @@ public class ShaderSettingsScreen extends Screen {
 		this.addDrawableChild(options);
 
 		this.addDrawableChild(new ButtonWidget(this.width / 2 + 4, this.height - 27, 150, 20, ScreenTexts.DONE, button -> this.onClose()));
-		this.addDrawableChild(new ButtonWidget(this.width / 2 - 154, this.height - 27, 150, 20, RELOAD, button -> {
-			client.reloadResources();
-		}));
+		this.addDrawableChild(new ButtonWidget(this.width / 2 - 154, this.height - 27, 150, 20, RELOAD, button -> client.reloadResources()));
 	}
 
 	@Override

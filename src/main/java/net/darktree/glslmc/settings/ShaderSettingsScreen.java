@@ -1,6 +1,5 @@
 package net.darktree.glslmc.settings;
 
-import net.darktree.glslmc.PanoramaClient;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.Screen;

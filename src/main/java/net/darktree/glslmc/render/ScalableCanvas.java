@@ -25,7 +25,7 @@ public class ScalableCanvas implements Closeable {
 	}
 
 	public void resize(int width, int height) {
-		if (width() != width && height() != height) {
+		if (width() != width && height() != height && width > 0 && height > 0) {
 			input.resize(width, height, MinecraftClient.IS_SYSTEM_MAC);
 			PanoramaClient.LOGGER.info("Resized shader canvas to " + width + "x" + height);
 		}

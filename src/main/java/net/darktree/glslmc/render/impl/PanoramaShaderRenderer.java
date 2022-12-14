@@ -115,7 +115,7 @@ public final class PanoramaShaderRenderer implements PanoramaRenderer {
 
 		// draw
 		buffer.bind();
-		buffer.drawElements();
+		buffer.draw();
 		canvas.blit(buffer, alpha);
 	}
 

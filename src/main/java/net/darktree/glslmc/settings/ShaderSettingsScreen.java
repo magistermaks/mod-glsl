@@ -28,8 +28,8 @@ public class ShaderSettingsScreen extends Screen {
 
 		this.addDrawableChild(options);
 
-		this.addDrawableChild(new ButtonWidget(this.width / 2 + 4, this.height - 27, 150, 20, ScreenTexts.DONE, button -> this.close()));
-		this.addDrawableChild(new ButtonWidget(this.width / 2 - 154, this.height - 27, 150, 20, RELOAD, button -> client.reloadResources()));
+		this.addDrawableChild(ButtonWidget.builder(ScreenTexts.DONE, button -> this.close()).dimensions(this.width / 2 + 4, this.height - 27, 150, 20).build());
+		this.addDrawableChild(ButtonWidget.builder(RELOAD, button -> client.reloadResources()).dimensions(this.width / 2 - 154, this.height - 27, 150, 20).build());
 	}
 
 	@Override

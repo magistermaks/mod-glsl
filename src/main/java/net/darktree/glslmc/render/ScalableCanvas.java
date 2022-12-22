@@ -7,7 +7,7 @@ import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gl.SimpleFramebuffer;
 import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.GameRenderer;
-import net.minecraft.util.math.Matrix4f;
+import org.joml.Matrix4f;
 
 import java.io.Closeable;
 
@@ -19,7 +19,6 @@ public class ScalableCanvas implements Closeable {
 
 	public ScalableCanvas() {
 		this.identity = new Matrix4f();
-		this.identity.loadIdentity();
 		this.output = MinecraftClient.getInstance().getFramebuffer();
 		this.input = new SimpleFramebuffer(output.textureWidth, output.textureHeight, false, false);
 	}
@@ -50,7 +49,7 @@ public class ScalableCanvas implements Closeable {
 		RenderSystem.setShaderColor(1, 1, 1, alpha);
 
 		RenderSystem.enableBlend();
-		buffer.draw(identity, identity, GameRenderer.getPositionTexColorShader());
+		buffer.draw(identity, identity, GameRenderer.getPositionTexColorProgram());
 	}
 
 	@Override

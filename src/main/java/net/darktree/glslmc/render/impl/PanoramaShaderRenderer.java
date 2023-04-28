@@ -103,7 +103,6 @@ public final class PanoramaShaderRenderer implements PanoramaRenderer {
 		if (texture != null) {
 			RenderSystem.activeTexture(GlConst.GL_TEXTURE0);
 			manager.bindTexture(texture);
-			RenderSystem.enableTexture();
 
 			GL30.glUniform1i(imageLoc, 0);
 		}

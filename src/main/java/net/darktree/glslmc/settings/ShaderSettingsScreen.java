@@ -3,8 +3,8 @@ package net.darktree.glslmc.settings;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonListWidget;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.OptionListWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
@@ -23,7 +23,7 @@ public class ShaderSettingsScreen extends Screen {
 
 	@Override
 	protected void init() {
-		ButtonListWidget options = new ButtonListWidget(this.client, this.width, this.height, 32, this.height - 32, 25);
+		OptionListWidget options = new OptionListWidget(this.client, this.width, this.height, 32, this.height - 32, 25);
 		options.addOptionEntry(Options.ENABLED, Options.QUALITY);
 
 		this.addDrawableChild(options);
@@ -36,8 +36,8 @@ public class ShaderSettingsScreen extends Screen {
 	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
 		this.renderBackground(matrices);
 		super.render(matrices, mouseX, mouseY, delta);
-		DrawableHelper.drawCenteredText(matrices, this.textRenderer, this.title, this.width / 2, 5, 0xFFFFFF);
-		DrawableHelper.drawCenteredText(matrices, this.textRenderer, NOTE, this.width / 2, 20, 0xFFFFFF);
+		DrawableHelper.drawCenteredTextWithShadow(matrices, this.textRenderer, this.title, this.width / 2, 5, 0xFFFFFF);
+		DrawableHelper.drawCenteredTextWithShadow(matrices, this.textRenderer, NOTE, this.width / 2, 20, 0xFFFFFF);
 	}
 
 	@Override

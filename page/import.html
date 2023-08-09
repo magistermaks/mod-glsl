@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>GLSL Panorama Shaders</title>
+		<script src="lib/zip.min.js"></script>
+		<script src="lib/file.min.js"></script>
+		<script src="assets/script.js"></script>
+		<link rel="stylesheet" href="assets/styles.css">
+	</head>
+
+	<body>
+		<header>
+			<nav>
+				<a class="entry" href="index.html">
+					<span>About</span>
+				</a>
+
+				<a class="entry selected" href="import.html">
+					<span>Import</span>
+				</a>
+
+				<a class="entry" href="editor.html">
+					<span>Editor</span>
+				</a>
+
+				<a class="entry" href="gallery.html">
+					<span>Gallery</span>
+				</a>
+
+				<a class="entry" href="https://github.com/magistermaks/mod-glsl/wiki">
+					<span>Docs</span>
+				</a>
+			</nav>
+		</header>
+
+		<section id="content">
+			<div>
+				<h1>Shader Import</h1>
+
+				<p>
+					Paste any <a href="https://www.shadertoy.com">shadertoy.com</a> shader link to convert it and open in the shader editor.
+					<center>
+						<input class="user-input spaced" id="import_url" placeholder="Shader URL" type="text"></input>
+						<button class="user-input spaced" onclick="importExternalShaderFromURL()">Convert</button>
+					</center>
+				</p>
+				<span style="opacity: 0;" id="editor_error"></span>
+			</div>
+		</section>
+
+		<footer>
+			<span>
+				GLSL Panorma Shaders
+				<span id="footer-year">2023</span>
+			</span>
+
+			<a href="https://www.curseforge.com/minecraft/mc-mods/glsl-panorama">
+				<img alt="Curseforge" class="social-icon" src="assets/curseforge-mark.png">
+			</a>
+
+			<a href="https://modrinth.com/mod/glsl-panorama">
+				<img alt="Modrinth" class="social-icon" src="assets/modrinth-mark.png">
+			</a>
+
+			<a href="https://github.com/magistermaks/mod-glsl">
+				<img alt="Github" class="social-icon" src="assets/github-mark.png">
+			</a>
+		</footer>
+	</body>
+</html>

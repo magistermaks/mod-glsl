@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>GLSL Panorama Shaders</title>
+		<script src="lib/zip.min.js"></script>
+		<script src="lib/file.min.js"></script>
+		<script src="assets/script.js"></script>
+		<link rel="stylesheet" href="assets/styles.css">
+	</head>
+
+	<body>
+		<header>
+			<nav>
+				<a class="entry" href="index.html">
+					<span>About</span>
+				</a>
+
+				<a class="entry" href="import.html">
+					<span>Import</span>
+				</a>
+
+				<a class="entry selected" href="editor.html">
+					<span>Editor</span>
+				</a>
+
+				<a class="entry" href="gallery.html">
+					<span>Gallery</span>
+				</a>
+
+				<a class="entry" href="https://github.com/magistermaks/mod-glsl/wiki">
+					<span>Docs</span>
+				</a>
+			</nav>
+		</header>
+
+		<section id="content">
+			<div>
+				<h1>Shader Editor</h1>
+
+				<p>
+					<textarea class="user-input" id="editor_fragment">// shader.frag
+// write your GLSL here, then export it and put into the resourcepacks folder
+// for more info see the documentation
+// happy shading!</textarea>
+					<input class="user-input spaced" id="editor_name" placeholder="Pack Name" type="text"></input>
+					<input class="user-input spaced" id="editor_description" placeholder="Pack Description" type="text"></input>
+
+					<!-- https://minecraft.fandom.com/wiki/Pack_format -->
+					<select class="user-input spaced" id="editor_format">
+						<option disabled value="">Select Minecraft Version</option>
+						<option value="7">1.17.0 - 1.17.1</option>
+						<option value="8">1.18.0 - 1.18.2</option>
+						<option value="9">1.19.0 - 1.19.2</option>
+						<option value="12">1.19.3</option>
+						<option value="13">1.19.4</option>
+						<option value="15">1.20.0 - 1.20.1</option>
+					</select>
+
+					<button class="user-input right-aligned-input spaced" onclick="editorExport()">Export</button>
+				</p>
+				<span style="opacity: 0;" id="editor_error"></span>
+			</div>
+		</section>
+
+		<footer>
+			<span>
+				GLSL Panorma Shaders
+				<span id="footer-year">2023</span>
+			</span>
+
+			<a href="https://www.curseforge.com/minecraft/mc-mods/glsl-panorama">
+				<img alt="Curseforge" class="social-icon" src="assets/curseforge-mark.png">
+			</a>
+
+			<a href="https://modrinth.com/mod/glsl-panorama">
+				<img alt="Modrinth" class="social-icon" src="assets/modrinth-mark.png">
+			</a>
+
+			<a href="https://github.com/magistermaks/mod-glsl">
+				<img alt="Github" class="social-icon" src="assets/github-mark.png">
+			</a>
+		</footer>
+	</body>
+</html>

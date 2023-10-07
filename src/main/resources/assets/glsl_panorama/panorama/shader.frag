@@ -3,9 +3,10 @@
 //  a bit like the tweet. This is the result.
 
 uniform float time;
+uniform float speed;
 uniform vec2 resolution;
 
-#define TIME          time*2
+#define TIME          (time*2*speed)
 #define PI            3.141592654
 #define TAU           (2.0*PI)
 

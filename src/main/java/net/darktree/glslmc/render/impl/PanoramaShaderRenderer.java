@@ -3,6 +3,7 @@ package net.darktree.glslmc.render.impl;
 import com.mojang.blaze3d.platform.GlConst;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.darktree.glslmc.render.GlobalState;
 import net.darktree.glslmc.render.PanoramaRenderer;
 import net.darktree.glslmc.render.ScalableCanvas;
 import net.darktree.glslmc.settings.Options;
@@ -25,10 +26,15 @@ public final class PanoramaShaderRenderer implements PanoramaRenderer {
 	private final VertexBuffer buffer;
 	private final Identifier texture;
 	private final int program;
+
 	private final int timeLoc;
 	private final int mouseLoc;
 	private final int resolutionLoc;
 	private final int imageLoc;
+	private final int backbufferLoc;
+	private final int frameLoc;
+	private final int persistentFrameLoc;
+	private final int speedLoc;
 
 	private final ScalableCanvas canvas;
 	private final TextureManager manager;
@@ -75,6 +81,10 @@ public final class PanoramaShaderRenderer implements PanoramaRenderer {
 		this.mouseLoc = GlUniform.getUniformLocation(this.program, "mouse");
 		this.resolutionLoc = GlUniform.getUniformLocation(this.program, "resolution");
 		this.imageLoc = GlUniform.getUniformLocation(this.program, "image");
+		this.backbufferLoc = GlUniform.getUniformLocation(this.program, "backbuffer");
+		this.frameLoc = GlUniform.getUniformLocation(this.program, "frame");
+		this.persistentFrameLoc = GlUniform.getUniformLocation(this.program, "persistent_frame");
+		this.speedLoc = GlUniform.getUniformLocation(this.program, "speed");
 	}
 
 	private int compileShader(String source, int type) {
@@ -92,7 +102,7 @@ public final class PanoramaShaderRenderer implements PanoramaRenderer {
 	}
 
 	@Override
-	public void draw(float time, float mouseX, float mouseY, int width, int height, float alpha) {
+	public void draw(MinecraftClient client, float time, int frame, float mouseX, float mouseY, int width, int height, float alpha) {
 		GlProgramManager.useProgram(this.program);
 
 		float scale = (float) Options.get().quality;
@@ -111,6 +121,14 @@ public final class PanoramaShaderRenderer implements PanoramaRenderer {
 		GL30.glUniform1f(timeLoc, time);
 		GL30.glUniform2f(mouseLoc, mouseX, mouseY);
 		GL30.glUniform2f(resolutionLoc, canvas.width(), canvas.height());
+		GL30.glUniform1i(frameLoc, frame);
+		GL30.glUniform1i(persistentFrameLoc, GlobalState.getFrame());
+		GL30.glUniform1f(speedLoc, client.options.getPanoramaSpeed().getValue().floatValue());
+
+		// backbuffer
+		RenderSystem.activeTexture(GlConst.GL_TEXTURE1);
+		canvas.read();
+		GL30.glUniform1i(backbufferLoc, 1);
 
 		// draw
 		buffer.bind();

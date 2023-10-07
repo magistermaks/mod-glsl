@@ -42,6 +42,10 @@ public class ScalableCanvas implements Closeable {
 		input.beginWrite(true);
 	}
 
+	public void read() {
+		input.beginRead();
+	}
+
 	public void blit(VertexBuffer buffer, float alpha) {
 		output.beginWrite(true);
 

@@ -29,7 +29,7 @@ public final class PanoramaFallbackRenderer implements PanoramaRenderer {
 	}
 
 	@Override
-	public void draw(float time, float mouseX, float mouseY, int width, int height, float alpha) {
+	public void draw(MinecraftClient client, float time, int frame, float mouseX, float mouseY, int width, int height, float alpha) {
 		RenderSystem.clearColor(r, g, b, alpha);
 		RenderSystem.clear(GlConst.GL_COLOR_BUFFER_BIT | GlConst.GL_DEPTH_BUFFER_BIT, MinecraftClient.IS_SYSTEM_MAC);
 

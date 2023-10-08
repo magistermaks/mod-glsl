@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Window.class)
-public class WindowMixin {
+public abstract class WindowMixin {
 
 	@Inject(method = "swapBuffers", at = @At("HEAD"))
 	public void glsl_swapBuffers(CallbackInfo ci) {

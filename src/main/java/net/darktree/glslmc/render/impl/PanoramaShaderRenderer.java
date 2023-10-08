@@ -46,7 +46,7 @@ public final class PanoramaShaderRenderer implements PanoramaRenderer {
 		this.canvas = new ScalableCanvas();
 		this.manager = MinecraftClient.getInstance().getTextureManager();
 
-		this.buffer = new VertexBuffer();
+		this.buffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
 		this.program = GlStateManager.glCreateProgram();
 		this.texture = texture;
 

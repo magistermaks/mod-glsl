@@ -5,6 +5,10 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.darktree.glslmc.render.PanoramaRenderer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.ColorHelper;
@@ -33,8 +37,13 @@ public final class PanoramaFallbackRenderer implements PanoramaRenderer {
 		RenderSystem.clearColor(r, g, b, alpha);
 		RenderSystem.clear(GlConst.GL_COLOR_BUFFER_BIT | GlConst.GL_DEPTH_BUFFER_BIT, MinecraftClient.IS_SYSTEM_MAC);
 
-		font.draw(IDENTITY, TEXT_TOP, 4, 4, foreground);
-		font.draw(IDENTITY, TEXT_BOTTOM, 4, 6 + font.fontHeight, foreground);
+		Tessellator tessellator = Tessellator.getInstance();
+		BufferBuilder builder = tessellator.getBuffer();
+		VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(builder);
+		DrawContext context = new DrawContext(client, immediate);
+
+		context.drawText(font, TEXT_TOP, 4, 4, foreground, false);
+		context.drawText(font, TEXT_BOTTOM, 4, 6 + font.fontHeight, foreground, false);
 	}
 
 	@Override

@@ -1,0 +1,14 @@
+{
+	"required": true,
+	"minVersion": "0.8",
+	"package": "net.darktree.glslmc.mixin",
+	"compatibilityLevel": "JAVA_16",
+	"client": [
+		"KeyboardMixin",
+		"RotatingCubeMapRendererMixin",
+		"WindowMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

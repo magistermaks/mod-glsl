@@ -1,13 +1,13 @@
 {
 	"schemaVersion": 1,
-	"id": "glsl-common",
+	"id": "glsl",
 	"version": "${version}",
 
 	"name": "GLSL Panorama",
 	"description": "Allows resource packs to add GLSL shaders for the title screen panorama.",
 
 	"icon": "assets/glsl_panorama/icon.png",
-	"license": "LGPL 3.0",
+	"license": "MIT",
 	"contact": {
 		"homepage": "http://darktree.net/",
 		"sources": "https://github.com/magistermaks/mod-glsl",
@@ -15,25 +15,24 @@
 	},
 
 	"environment": "client",
-	"entrypoints": {},
-	"mixins": [],
+	"entrypoints": {
+		"client": [
+			"net.darktree.glslmc.PanoramaClient"
+		],
+		"modmenu": [
+			"net.darktree.glslmc.settings.Menu"
+		]
+	},
+
+	"mixins": [
+		"glsl.mixins.json"
+	],
 
 	"depends": {
 		"fabricloader": ">=0.14.9",
 		"fabric": "*",
-		"minecraft": ["1.20.2", "1.20.3", "1.20.4", "1.20.5"]
+		"minecraft": ["1.20.2"]
 	},
-
-	"custom": {
-		"modmenu": {
-			"badges": ["library"],
-			"parent": {
-				"id": "glsl"
-			}
-		}
-	},
-
-	"suggests": {},
 
 	"authors": [
 		"magistermaks"

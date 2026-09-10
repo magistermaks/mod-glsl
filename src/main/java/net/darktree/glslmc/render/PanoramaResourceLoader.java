@@ -29,24 +29,13 @@ public class PanoramaResourceLoader implements SimpleResourceReloadListener<Pano
 	}
 
 	@Override
-	public CompletableFuture<PanoramaShader> load(ResourceManager manager, Profiler profiler, Executor executor) {
+	public CompletableFuture<PanoramaShader> load(ResourceManager manager, Executor executor) {
 		return CompletableFuture.supplyAsync(() -> {
 			String vertex = loadStringResource(manager, VERTEX);
 			String fragment = loadStringResource(manager, FRAGMENT);
 
 			return new PanoramaShader(vertex, fragment, getTexture(manager));
 		}, executor);
-	}
-
-	/**
-	 * Force shaders to reload even if resource reload was not triggered
-	 */
-	public void reload() {
-		MinecraftClient client = MinecraftClient.getInstance();
-		ResourceManager manager = client.getResourceManager();
-		Executor executor = Util.getMainWorkerExecutor();
-
-		load(manager, DummyProfiler.INSTANCE, executor).thenApply(shader -> apply(shader, manager, DummyProfiler.INSTANCE, executor));
 	}
 
 	private String loadStringResource(ResourceManager manager, Identifier identifier) {
@@ -68,7 +57,7 @@ public class PanoramaResourceLoader implements SimpleResourceReloadListener<Pano
 	}
 
 	@Override
-	public CompletableFuture<Void> apply(PanoramaShader data, ResourceManager manager, Profiler profiler, Executor executor) {
+	public CompletableFuture<Void> apply(PanoramaShader data, ResourceManager manager, Executor executor) {
 		PanoramaClient.setShader(data);
 		return CompletableFuture.completedFuture(null);
 	}

@@ -8,8 +8,8 @@ import net.darktree.glslmc.render.PanoramaRenderer;
 import net.darktree.glslmc.render.ScalableCanvas;
 import net.darktree.glslmc.settings.Options;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.GlProgramManager;
 import net.minecraft.client.gl.GlUniform;
+import net.minecraft.client.gl.GlUsage;
 import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
@@ -18,8 +18,6 @@ import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.texture.TextureManager;
 import net.minecraft.util.Identifier;
 import org.lwjgl.opengl.GL30;
-
-import java.util.Collections;
 
 public final class PanoramaShaderRenderer implements PanoramaRenderer {
 
@@ -46,7 +44,7 @@ public final class PanoramaShaderRenderer implements PanoramaRenderer {
 		this.canvas = new ScalableCanvas();
 		this.manager = MinecraftClient.getInstance().getTextureManager();
 
-		this.buffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
+		this.buffer = new VertexBuffer(GlUsage.STATIC_WRITE);
 		this.program = GlStateManager.glCreateProgram();
 		this.texture = texture;
 
@@ -57,7 +55,7 @@ public final class PanoramaShaderRenderer implements PanoramaRenderer {
 		// check linking status
 		if (GlStateManager.glGetProgrami(program, GlConst.GL_LINK_STATUS) == GlConst.GL_FALSE) {
 			String log = GlStateManager.glGetProgramInfoLog(program, 1024);
-			throw new RuntimeException("Filed to link shader program! Caused by: " + log);
+			throw new RuntimeException("Failed to link shader program! Caused by: " + log);
 		}
 
 		// free now unused resources
@@ -88,7 +86,7 @@ public final class PanoramaShaderRenderer implements PanoramaRenderer {
 
 	private int compileShader(String source, int type) {
 		int shader = GlStateManager.glCreateShader(type);
-		GlStateManager.glShaderSource(shader, Collections.singletonList(source));
+		GlStateManager.glShaderSource(shader, source);
 		GlStateManager.glCompileShader(shader);
 
 		// check compilation status
@@ -102,7 +100,7 @@ public final class PanoramaShaderRenderer implements PanoramaRenderer {
 
 	@Override
 	public void draw(MinecraftClient client, double time, long frame, float mouseX, float mouseY, int width, int height, float alpha) {
-		GlProgramManager.useProgram(this.program);
+		GlStateManager._glUseProgram(this.program);
 
 		float scale = (float) Options.get().quality;
 		canvas.resize((int) (width * scale), (int) (height * scale));
@@ -111,7 +109,7 @@ public final class PanoramaShaderRenderer implements PanoramaRenderer {
 		// bind sampler if present
 		if (texture != null) {
 			RenderSystem.activeTexture(GlConst.GL_TEXTURE0);
-			manager.bindTexture(texture);
+			manager.getTexture(texture).bindTexture();
 
 			GL30.glUniform1i(imageLoc, 0);
 		}
@@ -132,7 +130,7 @@ public final class PanoramaShaderRenderer implements PanoramaRenderer {
 		// draw
 		buffer.bind();
 		buffer.draw();
-		canvas.blit(buffer, alpha);
+		canvas.blit(alpha);
 	}
 
 	@Override

@@ -17,7 +17,6 @@ import net.minecraft.util.math.ColorHelper;
 public final class PanoramaFallbackRenderer implements PanoramaRenderer {
 
 	private static final VertexConsumerProvider.Immediate IMMEDIATE = VertexConsumerProvider.immediate(new BufferAllocator(256));
-	private static final MatrixStack IDENTITY = new MatrixStack();
 	private static final Text TEXT_TOP = Text.translatable("error.glsl_panorama.top");
 	private static final Text TEXT_BOTTOM = Text.translatable("error.glsl_panorama.bottom");
 
@@ -28,20 +27,21 @@ public final class PanoramaFallbackRenderer implements PanoramaRenderer {
 	public PanoramaFallbackRenderer(int background, int foreground) {
 		this.font = MinecraftClient.getInstance().textRenderer;
 
-		this.r = ColorHelper.Argb.getRed(background) / 255.0f;
-		this.g = ColorHelper.Argb.getGreen(background) / 255.0f;
-		this.b = ColorHelper.Argb.getBlue(background) / 255.0f;
+		this.r = ColorHelper.getRed(background) / 255.0f;
+		this.g = ColorHelper.getGreen(background) / 255.0f;
+		this.b = ColorHelper.getBlue(background) / 255.0f;
 		this.foreground = foreground;
 	}
 
 	@Override
 	public void draw(MinecraftClient client, double time, long frame, float mouseX, float mouseY, int width, int height, float alpha) {
 		RenderSystem.clearColor(r, g, b, alpha);
-		RenderSystem.clear(GlConst.GL_COLOR_BUFFER_BIT | GlConst.GL_DEPTH_BUFFER_BIT, MinecraftClient.IS_SYSTEM_MAC);
+		RenderSystem.clear(GlConst.GL_COLOR_BUFFER_BIT | GlConst.GL_DEPTH_BUFFER_BIT);
 		DrawContext context = new DrawContext(client, IMMEDIATE);
 
 		context.drawText(font, TEXT_TOP, 4, 4, foreground, false);
 		context.drawText(font, TEXT_BOTTOM, 4, 6 + font.fontHeight, foreground, false);
+		context.draw();
 	}
 
 	@Override

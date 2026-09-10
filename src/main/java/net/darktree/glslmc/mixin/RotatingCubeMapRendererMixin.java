@@ -22,7 +22,7 @@ public abstract class RotatingCubeMapRendererMixin {
 	@Unique private long frame = 0;
 
 	@Inject(method = "render", at = @At("HEAD"))
-	private void increaseTime(DrawContext context, int width, int height, float alpha, float delta, CallbackInfo ci) {
+	private void glsl_increaseTime(DrawContext context, int width, int height, float alpha, float delta, CallbackInfo ci) {
 		time += delta;
 		frame += 1;
 	}

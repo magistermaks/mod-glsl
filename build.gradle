@@ -1,8 +1,7 @@
 plugins {
-	id 'fabric-loom' version '1.7-SNAPSHOT'
+	id 'fabric-loom' version '1.17-SNAPSHOT'
 }
 
-archivesBaseName = project.archives_base_name
 version = project.mod_version
 group = project.maven_group
 
@@ -10,14 +9,28 @@ loom {
 	runtimeOnlyLog4j = true
 }
 
-dependencies {
-	minecraft "com.mojang:minecraft:${project.base_minecraft_version}"
-	mappings "net.fabricmc:yarn:${project.base_yarn_mappings}:v2"
+repositories {
+	maven {
+		name = 'TerraformersMC'
+		url = 'https://maven.terraformersmc.com/'
+	}
+}
 
-	include project(path: ":1.20.2")
-	include project(path: ":1.20.4")
-	include project(path: ":1.20.5")
-	include project(path: ":1.21")
+loom {
+	runtimeOnlyLog4j = true
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+	// Fabric API
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+
+	// Mod Menu
+	modCompileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
+	modRuntimeOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
 }
 
 processResources {
@@ -32,10 +45,8 @@ processResources {
 }
 
 java {
-	withSourcesJar()
-
 	toolchain {
-		languageVersion.set(JavaLanguageVersion.of(17))
+		languageVersion.set(JavaLanguageVersion.of(21))
 	}
 }
 

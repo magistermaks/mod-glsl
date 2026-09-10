@@ -49,9 +49,3 @@ java {
 		languageVersion.set(JavaLanguageVersion.of(21))
 	}
 }
-
-jar {
-	from("LICENSE") {
-		rename { "${it}_${project.archivesBaseName}"}
-	}
-}

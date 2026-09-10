@@ -4,7 +4,9 @@ See documentation here: [WIKI](https://github.com/magistermaks/mod-glsl/wiki)
 
 The default, build-in shader "Neonwave Sunrise" by mrange, licensed under CC0.
 See original here: https://www.shadertoy.com/view/7dyyRy.
-See shader editor and converter here: http://magistermaks.github.io/repository.
+
+#### Shader editor and converter
+Simple website to export shader resource packs https://magistermaks.github.io/mod-glsl/
 
 #### Download
 This mod is available for download on both [Modrinth](https://modrinth.com/mod/glsl-panorama) and [Curseforge](https://www.curseforge.com/minecraft/mc-mods/glsl-panorama).

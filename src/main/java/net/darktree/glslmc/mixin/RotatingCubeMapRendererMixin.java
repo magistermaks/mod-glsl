@@ -9,6 +9,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.CubeMapRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.RotatingCubeMapRenderer;
+import net.minecraft.client.util.Window;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -35,6 +36,10 @@ public abstract class RotatingCubeMapRendererMixin {
 		frame += 1;
 
 		if (Options.get().enabled) {
+			Window window = MinecraftClient.getInstance().getWindow();
+			width = window.getWidth();
+			height = window.getHeight();
+
 			float mx = (float) client.mouse.getX() / (float) width;
 			float my = (float) client.mouse.getY() / (float) height;
 

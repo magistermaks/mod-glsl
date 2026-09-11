@@ -6,6 +6,7 @@ import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.textures.GpuTexture;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.darktree.glslmc.PanoramaClient;
 import net.darktree.glslmc.render.GlobalState;
@@ -19,7 +20,8 @@ import net.minecraft.client.render.BuiltBuffer;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.texture.TextureManager;
-import net.minecraft.util.Identifier;
+import net.minecraft.resource.ResourceManager;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.OptionalInt;
 
@@ -27,14 +29,12 @@ public final class PanoramaShaderRenderer extends PanoramaRenderer {
 
 	private final GpuBuffer buffer;
 	private final RenderPipeline pipeline;
-	private final Identifier texture;
+	private final GpuTexture texture;
 
 	private final ScalableCanvas canvas;
-	private final TextureManager manager;
 
 	public PanoramaShaderRenderer() {
 		this.canvas = new ScalableCanvas();
-		this.manager = MinecraftClient.getInstance().getTextureManager();
 
 		this.pipeline = RenderPipeline.builder()
 				.withLocation(PanoramaClient.id("panorama"))
@@ -44,18 +44,25 @@ public final class PanoramaShaderRenderer extends PanoramaRenderer {
 				.withUniform("time", UniformType.FLOAT)
 				.withUniform("mouse", UniformType.VEC2)
 				.withUniform("resolution", UniformType.VEC2)
-				.withUniform("image", UniformType.INT)
-				.withUniform("backbuffer", UniformType.INT)
 				.withUniform("frame", UniformType.INT)
 				.withUniform("persistent_frame", UniformType.INT)
 				.withUniform("speed", UniformType.FLOAT)
+				.withUniform("mouse_left_pressed", UniformType.FLOAT)
+				.withUniform("mouse_right_pressed", UniformType.FLOAT)
+				.withSampler("image")
+				.withSampler("backbuffer")
 				.build();
 
 		if (!RenderSystem.getDevice().precompilePipeline(pipeline).isValid()) {
 			throw new RuntimeException("Failed to construct pipeline!");
 		}
 
-		this.texture = null; // TODO
+		final MinecraftClient client = MinecraftClient.getInstance();
+		final ResourceManager resources = client.getResourceManager();
+		final TextureManager textures = client.getTextureManager();
+
+		// check if the image.png was provided
+		this.texture = resources.getResource(TEXTURE_ID).isPresent() ? textures.getTexture(TEXTURE_ID).getGlTexture() : null;
 
 		// bake buffer data
 		BufferBuilder builder = Tessellator.getInstance().begin(VertexFormat.DrawMode.TRIANGLES, VertexFormats.POSITION_TEXTURE_COLOR);
@@ -73,8 +80,15 @@ public final class PanoramaShaderRenderer extends PanoramaRenderer {
 
 	@Override
 	public void draw(MinecraftClient client, double time, long frame, float mouseX, float mouseY, int width, int height, float alpha) {
-		float scale = (float) Options.get().quality;
-		canvas.resize((int) (width * scale), (int) (height * scale));
+		final float scale = (float) Options.get().quality;
+		final float w = width * scale;
+		final float h = height * scale;
+
+		canvas.resize((int) w, (int) h);
+
+		final long window = MinecraftClient.getInstance().getWindow().getHandle();
+		boolean left = GLFW.glfwGetMouseButton(window, GLFW.GLFW_MOUSE_BUTTON_1) != 0;
+		boolean right = GLFW.glfwGetMouseButton(window, GLFW.GLFW_MOUSE_BUTTON_2) != 0;
 
 		try (RenderPass pass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(canvas.getSurface(), OptionalInt.of(0))) {
 			pass.setVertexBuffer(0, buffer);
@@ -82,13 +96,15 @@ public final class PanoramaShaderRenderer extends PanoramaRenderer {
 
 			pass.setUniform("time", (float) time);
 			pass.setUniform("mouse", mouseX, mouseY);
-			pass.setUniform("resolution", (float) canvas.width(), (float) canvas.height());
+			pass.setUniform("mouse_left_pressed", left ? 1.0f : 0.0f);
+			pass.setUniform("mouse_right_pressed", right ? 1.0f : 0.0f);
+			pass.setUniform("resolution", w, h);
 			pass.setUniform("frame", frame);
 			pass.setUniform("persistent_frame", GlobalState.getFrame());
-			pass.setUniform("speed",  client.options.getPanoramaSpeed().getValue().floatValue());
+			pass.setUniform("speed", client.options.getPanoramaSpeed().getValue().floatValue());
 
 			if (texture != null) {
-				pass.bindSampler("image", manager.getTexture(texture).getGlTexture());
+				pass.bindSampler("image", texture);
 			}
 
 			// TODO pass.bindSampler("backbuffer", );

@@ -22,14 +22,6 @@ public class ScalableCanvas implements Closeable {
 		}
 	}
 
-	public int width() {
-		return input.textureWidth;
-	}
-
-	public int height() {
-		return input.textureHeight;
-	}
-
 	public GpuTexture getSurface() {
 		return input.getColorAttachment();
 	}

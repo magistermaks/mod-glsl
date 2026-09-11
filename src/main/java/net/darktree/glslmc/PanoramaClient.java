@@ -32,6 +32,7 @@ public class PanoramaClient implements ClientModInitializer {
 	}
 
 	public static void setShader(PanoramaShader shader) {
+		LOGGER.info("setShader: {}", shader);
 		PanoramaClient.shader = shader;
 	}
 
@@ -42,10 +43,18 @@ public class PanoramaClient implements ClientModInitializer {
 			}
 
 			renderer = shader.compile();
-			shader = null;
+			//shader = null;
 		}
 
 		return renderer;
+	}
+
+	public static String getSource(Identifier identifier) {
+		if (shader != null) {
+			return shader.getSource(identifier);
+		}
+
+		return null;
 	}
 
 }

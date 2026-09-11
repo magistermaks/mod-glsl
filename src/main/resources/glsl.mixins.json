@@ -6,7 +6,8 @@
 	"client": [
 		"KeyboardMixin",
 		"RotatingCubeMapRendererMixin",
-		"WindowMixin"
+		"WindowMixin",
+		"ShaderLoaderCacheMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

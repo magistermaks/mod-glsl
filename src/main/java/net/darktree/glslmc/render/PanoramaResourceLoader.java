@@ -30,6 +30,7 @@ public class PanoramaResourceLoader implements SimpleResourceReloadListener<Pano
 
 	@Override
 	public CompletableFuture<PanoramaShader> load(ResourceManager manager, Executor executor) {
+		PanoramaClient.LOGGER.info("load");
 		return CompletableFuture.supplyAsync(() -> {
 			String vertex = loadStringResource(manager, VERTEX);
 			String fragment = loadStringResource(manager, FRAGMENT);

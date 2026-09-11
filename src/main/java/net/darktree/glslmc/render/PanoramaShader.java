@@ -7,6 +7,9 @@ import net.minecraft.util.Identifier;
 
 public class PanoramaShader {
 
+	public static final Identifier VERTEX_ID = PanoramaClient.id("panorama/shader.vert");
+	public static final Identifier FRAGMENT_ID = PanoramaClient.id("panorama/shader.frag");
+
 	private final String vertex;
 	private final String fragment;
 	private final Identifier texture;
@@ -25,6 +28,13 @@ public class PanoramaShader {
 		}
 
 		return new PanoramaFallbackRenderer(0xEF323D, 0xFFFFFF);
+	}
+
+	public String getSource(Identifier identifier) {
+		if (identifier.equals(VERTEX_ID)) return vertex;
+		if (identifier.equals(FRAGMENT_ID)) return fragment;
+
+		return null;
 	}
 
 }

@@ -19,10 +19,6 @@ import java.util.concurrent.Executor;
 
 public class PanoramaResourceLoader implements SimpleResourceReloadListener<PanoramaShader> {
 
-	private static final Identifier VERTEX = PanoramaClient.id("panorama/shader.vert");
-	private static final Identifier FRAGMENT = PanoramaClient.id("panorama/shader.frag");
-	private static final Identifier TEXTURE = PanoramaClient.id("panorama/texture.png");
-
 	@Override
 	public Identifier getFabricId() {
 		return PanoramaClient.id("panorama");
@@ -32,8 +28,8 @@ public class PanoramaResourceLoader implements SimpleResourceReloadListener<Pano
 	public CompletableFuture<PanoramaShader> load(ResourceManager manager, Executor executor) {
 		PanoramaClient.LOGGER.info("load");
 		return CompletableFuture.supplyAsync(() -> {
-			String vertex = loadStringResource(manager, VERTEX);
-			String fragment = loadStringResource(manager, FRAGMENT);
+			String vertex = loadStringResource(manager, PanoramaShader.VERTEX_ID);
+			String fragment = loadStringResource(manager, PanoramaShader.FRAGMENT_ID);
 
 			return new PanoramaShader(vertex, fragment, getTexture(manager));
 		}, executor);
@@ -54,7 +50,7 @@ public class PanoramaResourceLoader implements SimpleResourceReloadListener<Pano
 	}
 
 	private Identifier getTexture(ResourceManager manager) {
-		return manager.getResource(TEXTURE).isPresent() ? TEXTURE : null;
+		return manager.getResource(PanoramaShader.TEXTURE_ID).isPresent() ? PanoramaShader.TEXTURE_ID : null;
 	}
 
 	@Override

@@ -9,6 +9,7 @@ public class PanoramaShader {
 
 	public static final Identifier VERTEX_ID = PanoramaClient.id("panorama/shader.vert");
 	public static final Identifier FRAGMENT_ID = PanoramaClient.id("panorama/shader.frag");
+	public static final Identifier TEXTURE_ID = PanoramaClient.id("panorama/texture.png");
 
 	private final String vertex;
 	private final String fragment;
@@ -22,9 +23,9 @@ public class PanoramaShader {
 
 	public PanoramaRenderer compile() {
 		try {
-			return new PanoramaShaderRenderer(vertex, fragment, texture);
+			return new PanoramaShaderRenderer(texture);
 		} catch (Exception exception) {
-			PanoramaClient.LOGGER.error("Failed to create panorama renderer!", exception);
+			PanoramaClient.LOGGER.error("Failed to create panorama renderer: {}", exception.getMessage());
 		}
 
 		return new PanoramaFallbackRenderer(0xEF323D, 0xFFFFFF);

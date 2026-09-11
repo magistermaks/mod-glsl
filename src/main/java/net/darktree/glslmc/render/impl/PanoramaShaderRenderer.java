@@ -33,7 +33,7 @@ public final class PanoramaShaderRenderer implements PanoramaRenderer {
 	private final ScalableCanvas canvas;
 	private final TextureManager manager;
 
-	public PanoramaShaderRenderer(String vertex, String fragment, Identifier texture) {
+	public PanoramaShaderRenderer(Identifier texture) {
 		this.canvas = new ScalableCanvas();
 		this.manager = MinecraftClient.getInstance().getTextureManager();
 
@@ -51,6 +51,10 @@ public final class PanoramaShaderRenderer implements PanoramaRenderer {
 				.withUniform("persistent_frame", UniformType.INT)
 				.withUniform("speed", UniformType.FLOAT)
 				.build();
+
+		if (!RenderSystem.getDevice().precompilePipeline(pipeline).isValid()) {
+			throw new RuntimeException("Failed to construct pipeline!");
+		}
 
 		this.texture = texture;
 

@@ -20,7 +20,7 @@ public abstract class ShaderLoaderCacheMixin {
 	 * shader directory. We don't add our shader to the shader source cache as that would place a dependency between resource loader order
 	 */
 	@Inject(method = "getSource", at = @At("HEAD"), cancellable = true)
-	public void getSource(Identifier id, ShaderType type, CallbackInfoReturnable<String> cir) {
+	public void glsl_getSource(Identifier id, ShaderType type, CallbackInfoReturnable<String> cir) {
 		if (PanoramaClient.getSource(id) instanceof String source) {
 			cir.setReturnValue(source);
 		}

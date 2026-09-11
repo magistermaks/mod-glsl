@@ -10,11 +10,10 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import net.darktree.glslmc.PanoramaClient;
 import net.darktree.glslmc.render.GlobalState;
 import net.darktree.glslmc.render.PanoramaRenderer;
-import net.darktree.glslmc.render.PanoramaShader;
 import net.darktree.glslmc.render.ScalableCanvas;
 import net.darktree.glslmc.settings.Options;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.*;
+import net.minecraft.client.gl.UniformType;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.BuiltBuffer;
 import net.minecraft.client.render.Tessellator;
@@ -24,7 +23,7 @@ import net.minecraft.util.Identifier;
 
 import java.util.OptionalInt;
 
-public final class PanoramaShaderRenderer implements PanoramaRenderer {
+public final class PanoramaShaderRenderer extends PanoramaRenderer {
 
 	private final GpuBuffer buffer;
 	private final RenderPipeline pipeline;
@@ -33,15 +32,15 @@ public final class PanoramaShaderRenderer implements PanoramaRenderer {
 	private final ScalableCanvas canvas;
 	private final TextureManager manager;
 
-	public PanoramaShaderRenderer(Identifier texture) {
+	public PanoramaShaderRenderer() {
 		this.canvas = new ScalableCanvas();
 		this.manager = MinecraftClient.getInstance().getTextureManager();
 
 		this.pipeline = RenderPipeline.builder()
-				.withLocation(PanoramaClient.id("synthetic_panorama_pipeline"))
+				.withLocation(PanoramaClient.id("panorama"))
 				.withVertexFormat(VertexFormats.POSITION_TEXTURE_COLOR, VertexFormat.DrawMode.QUADS)
-				.withVertexShader(PanoramaShader.VERTEX_ID)
-				.withFragmentShader(PanoramaShader.FRAGMENT_ID)
+				.withVertexShader(VERTEX_SHADER_ID)
+				.withFragmentShader(FRAGMENT_SHADER_ID)
 				.withUniform("time", UniformType.FLOAT)
 				.withUniform("mouse", UniformType.VEC2)
 				.withUniform("resolution", UniformType.VEC2)
@@ -56,7 +55,7 @@ public final class PanoramaShaderRenderer implements PanoramaRenderer {
 			throw new RuntimeException("Failed to construct pipeline!");
 		}
 
-		this.texture = texture;
+		this.texture = null; // TODO
 
 		// bake buffer data
 		BufferBuilder builder = Tessellator.getInstance().begin(VertexFormat.DrawMode.TRIANGLES, VertexFormats.POSITION_TEXTURE_COLOR);

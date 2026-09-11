@@ -16,9 +16,6 @@
 
 	"environment": "client",
 	"entrypoints": {
-		"client": [
-			"net.darktree.glslmc.PanoramaClient"
-		],
 		"modmenu": [
 			"net.darktree.glslmc.settings.Menu"
 		]

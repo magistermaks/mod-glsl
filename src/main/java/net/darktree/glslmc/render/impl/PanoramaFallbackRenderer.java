@@ -9,7 +9,7 @@ import net.minecraft.client.util.BufferAllocator;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.ColorHelper;
 
-public final class PanoramaFallbackRenderer implements PanoramaRenderer {
+public final class PanoramaFallbackRenderer extends PanoramaRenderer {
 
 	private static final VertexConsumerProvider.Immediate IMMEDIATE = VertexConsumerProvider.immediate(new BufferAllocator(256));
 	private static final Text TEXT_TOP = Text.translatable("error.glsl_panorama.top");

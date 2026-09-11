@@ -1,27 +1,29 @@
 package net.darktree.glslmc.render.impl;
 
-import com.mojang.blaze3d.platform.GlConst;
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.buffers.BufferType;
+import com.mojang.blaze3d.buffers.BufferUsage;
+import com.mojang.blaze3d.buffers.GpuBuffer;
+import com.mojang.blaze3d.opengl.GlConst;
+import com.mojang.blaze3d.opengl.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import net.darktree.glslmc.render.GlobalState;
 import net.darktree.glslmc.render.PanoramaRenderer;
 import net.darktree.glslmc.render.ScalableCanvas;
 import net.darktree.glslmc.settings.Options;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.GlUniform;
-import net.minecraft.client.gl.GlUsage;
-import net.minecraft.client.gl.VertexBuffer;
+import net.minecraft.client.gl.*;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.texture.GlTexture;
 import net.minecraft.client.texture.TextureManager;
 import net.minecraft.util.Identifier;
 import org.lwjgl.opengl.GL30;
 
 public final class PanoramaShaderRenderer implements PanoramaRenderer {
 
-	private final VertexBuffer buffer;
+	private final GpuBuffer buffer;
 	private final Identifier texture;
 	private final int program;
 
@@ -44,7 +46,6 @@ public final class PanoramaShaderRenderer implements PanoramaRenderer {
 		this.canvas = new ScalableCanvas();
 		this.manager = MinecraftClient.getInstance().getTextureManager();
 
-		this.buffer = new VertexBuffer(GlUsage.STATIC_WRITE);
 		this.program = GlStateManager.glCreateProgram();
 		this.texture = texture;
 
@@ -69,9 +70,7 @@ public final class PanoramaShaderRenderer implements PanoramaRenderer {
 		builder.vertex( 1.0f,  1.0f,  1.0f).texture(1, 1).color(1f, 1f, 1f, 1f);
 		builder.vertex(-1.0f,  1.0f,  1.0f).texture(0, 1).color(1f, 1f, 1f, 1f);
 
-		buffer.bind();
-		buffer.upload(builder.end());
-		VertexBuffer.unbind();
+		this.buffer = RenderSystem.getDevice().createBuffer(() -> "panorama surface", BufferType.VERTICES, BufferUsage.STATIC_WRITE, builder.end().getBuffer());
 
 		// load uniforms
 		this.timeLoc = GlUniform.getUniformLocation(this.program, "time");
@@ -104,32 +103,33 @@ public final class PanoramaShaderRenderer implements PanoramaRenderer {
 
 		float scale = (float) Options.get().quality;
 		canvas.resize((int) (width * scale), (int) (height * scale));
-		canvas.write();
+		// TODO begin canvas write
 
 		// bind sampler if present
 		if (texture != null) {
-			RenderSystem.activeTexture(GlConst.GL_TEXTURE0);
-			manager.getTexture(texture).bindTexture();
-
-			GL30.glUniform1i(imageLoc, 0);
+			GlTexture tex = (GlTexture) manager.getTexture(texture).getGlTexture();
+			GlStateManager._activeTexture(GlConst.GL_TEXTURE0);
+			GlStateManager._bindTexture(tex.getGlId());
+			GlStateManager._glUniform1i(imageLoc, 0);
 		}
 
 		// update uniforms
 		GL30.glUniform1f(timeLoc, (float) time);
 		GL30.glUniform2f(mouseLoc, mouseX, mouseY);
 		GL30.glUniform2f(resolutionLoc, canvas.width(), canvas.height());
-		GL30.glUniform1i(frameLoc, (int) frame);
-		GL30.glUniform1i(persistentFrameLoc, GlobalState.getFrame());
 		GL30.glUniform1f(speedLoc, client.options.getPanoramaSpeed().getValue().floatValue());
 
-		// backbuffer
-		RenderSystem.activeTexture(GlConst.GL_TEXTURE1);
-		canvas.read();
-		GL30.glUniform1i(backbufferLoc, 1);
+		GlStateManager._glUniform1i(frameLoc, (int) frame);
+		GlStateManager._glUniform1i(persistentFrameLoc, GlobalState.getFrame());
 
-		// draw
-		buffer.bind();
-		buffer.draw();
+		// backbuffer
+		GlStateManager._activeTexture(GlConst.GL_TEXTURE1);
+
+
+
+		GlStateManager._glUniform1i(backbufferLoc, 1);
+
+		// TODO draw
 		canvas.blit(alpha);
 	}
 

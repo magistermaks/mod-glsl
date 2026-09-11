@@ -26,8 +26,8 @@ public class ScalableCanvas implements Closeable {
 		return input.getColorAttachment();
 	}
 
-	public void blit(float alpha) {
-		input.drawBlit(MinecraftClient.getInstance().getFramebuffer().getColorAttachment());
+	public void blitInto(GpuTexture texture) {
+		input.drawBlit(texture);
 	}
 
 	@Override

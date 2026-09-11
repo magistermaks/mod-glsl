@@ -14,6 +14,7 @@ import net.darktree.glslmc.render.PanoramaRenderer;
 import net.darktree.glslmc.render.ScalableCanvas;
 import net.darktree.glslmc.settings.Options;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gl.UniformType;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.BuiltBuffer;
@@ -32,9 +33,11 @@ public final class PanoramaShaderRenderer extends PanoramaRenderer {
 	private final GpuTexture texture;
 
 	private final ScalableCanvas canvas;
+	private final ScalableCanvas backbuffer;
 
 	public PanoramaShaderRenderer() {
 		this.canvas = new ScalableCanvas();
+		this.backbuffer = new ScalableCanvas();
 
 		this.pipeline = RenderPipeline.builder()
 				.withLocation(PanoramaClient.id("panorama"))
@@ -90,6 +93,8 @@ public final class PanoramaShaderRenderer extends PanoramaRenderer {
 		boolean left = GLFW.glfwGetMouseButton(window, GLFW.GLFW_MOUSE_BUTTON_1) != 0;
 		boolean right = GLFW.glfwGetMouseButton(window, GLFW.GLFW_MOUSE_BUTTON_2) != 0;
 
+		Framebuffer target = MinecraftClient.getInstance().getFramebuffer();
+
 		try (RenderPass pass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(canvas.getSurface(), OptionalInt.of(0))) {
 			pass.setVertexBuffer(0, buffer);
 			pass.setPipeline(pipeline);
@@ -107,12 +112,15 @@ public final class PanoramaShaderRenderer extends PanoramaRenderer {
 				pass.bindSampler("image", texture);
 			}
 
-			// TODO pass.bindSampler("backbuffer", );
+			pass.bindSampler("backbuffer", backbuffer.getSurface());
 
 			pass.draw(0, 6);
 		}
 
-		canvas.blit(alpha);
+		backbuffer.resize((int) w, (int) h);
+
+		canvas.blitInto(backbuffer.getSurface());
+		canvas.blitInto(target.getColorAttachment());
 	}
 
 	@Override

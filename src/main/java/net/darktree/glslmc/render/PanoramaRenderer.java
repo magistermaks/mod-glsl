@@ -21,7 +21,7 @@ public abstract class PanoramaRenderer {
 		}
 
 		// this will draw a basic error screen and direct the user to read the logs
-		return new PanoramaFallbackRenderer(0xEF323D, 0xFFFFFF);
+		return new PanoramaFallbackRenderer(0xFFEF323D, 0xFFFFFFFF);
 	}
 
 	private static PanoramaRenderer INSTANCE = null;

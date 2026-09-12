@@ -17,6 +17,7 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(RotatingCubeMapRenderer.class)
 public abstract class RotatingCubeMapRendererMixin {
 
+	@Unique private double time = 0;
 	@Unique private long frame = 0;
 
 	/**
@@ -39,7 +40,7 @@ public abstract class RotatingCubeMapRendererMixin {
 			float mx = (float) client.mouse.getX() / (float) width;
 			float my = (float) client.mouse.getY() / (float) height;
 
-			float time = client.getRenderTickCounter().getFixedDeltaTicks();
+			time += client.getRenderTickCounter().getDynamicDeltaTicks();
 			PanoramaRenderer.getInstance().draw(client, time / 60, frame, mx, my, width, height, context);
 		} else {
 			original.call(instance, client, x, y);

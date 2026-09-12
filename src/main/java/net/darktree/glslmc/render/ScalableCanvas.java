@@ -1,6 +1,7 @@
 package net.darktree.glslmc.render;
 
 import com.mojang.blaze3d.textures.GpuTexture;
+import com.mojang.blaze3d.textures.GpuTextureView;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gl.SimpleFramebuffer;
@@ -22,12 +23,12 @@ public class ScalableCanvas implements Closeable {
 		}
 	}
 
-	public GpuTexture getSurface() {
-		return input.getColorAttachment();
+	public GpuTextureView getColorView() {
+		return input.getColorAttachmentView();
 	}
 
-	public void blitInto(GpuTexture texture) {
-		input.drawBlit(texture);
+	public void blitInto(GpuTextureView view) {
+		input.drawBlit(view);
 	}
 
 	@Override

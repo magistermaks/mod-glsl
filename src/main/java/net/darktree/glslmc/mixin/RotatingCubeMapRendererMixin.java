@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(RotatingCubeMapRenderer.class)
 public abstract class RotatingCubeMapRendererMixin {
 
-	@Unique private double time = 0f;
+	@Unique private double time = 0;
 	@Unique private long frame = 0;
 
 	/**
@@ -28,24 +28,22 @@ public abstract class RotatingCubeMapRendererMixin {
 			method = "render",
 			at = @At(
 					value = "INVOKE",
-					target = "Lnet/minecraft/client/gui/CubeMapRenderer;draw(Lnet/minecraft/client/MinecraftClient;FFF)V"
+					target = "Lnet/minecraft/client/gui/CubeMapRenderer;draw(Lnet/minecraft/client/MinecraftClient;FF)V"
 			)
 	)
-	public void onCubemapDraw(CubeMapRenderer instance, MinecraftClient client, float x, float y, float a, Operation<Void> original, DrawContext context, int width, int height, float alpha, float delta) {
-		time += delta;
-		frame += 1;
-
+	public void onCubemapDraw(CubeMapRenderer instance, MinecraftClient client, float x, float y, Operation<Void> original, DrawContext context) {
 		if (Options.get().enabled) {
-			Window window = MinecraftClient.getInstance().getWindow();
-			width = window.getWidth();
-			height = window.getHeight();
+			Window window = client.getWindow();
+			int width = window.getWidth();
+			int height = window.getHeight();
 
 			float mx = (float) client.mouse.getX() / (float) width;
 			float my = (float) client.mouse.getY() / (float) height;
 
-			PanoramaRenderer.getInstance().draw(client, this.time / 60, frame, mx, my, width, height, a);
+			time += client.getRenderTickCounter().getDynamicDeltaTicks();
+			PanoramaRenderer.getInstance().draw(client, time / 60, frame, mx, my, width, height, context);
 		} else {
-			original.call(instance, client, x, y, a);
+			original.call(instance, client, x, y);
 		}
 
 		GlobalState.nextFrame();

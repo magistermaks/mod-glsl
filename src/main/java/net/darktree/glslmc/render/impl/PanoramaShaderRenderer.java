@@ -1,12 +1,11 @@
 package net.darktree.glslmc.render.impl;
 
-import com.mojang.blaze3d.buffers.BufferType;
-import com.mojang.blaze3d.buffers.BufferUsage;
-import com.mojang.blaze3d.buffers.GpuBuffer;
+import com.mojang.blaze3d.buffers.*;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.blaze3d.systems.GpuDevice;
 import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.textures.GpuTexture;
+import com.mojang.blaze3d.textures.GpuTextureView;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.darktree.glslmc.PanoramaClient;
 import net.darktree.glslmc.render.GlobalState;
@@ -15,7 +14,9 @@ import net.darktree.glslmc.render.ScalableCanvas;
 import net.darktree.glslmc.settings.Options;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
+import net.minecraft.client.gl.MappableRingBuffer;
 import net.minecraft.client.gl.UniformType;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.BuiltBuffer;
 import net.minecraft.client.render.Tessellator;
@@ -28,9 +29,21 @@ import java.util.OptionalInt;
 
 public final class PanoramaShaderRenderer extends PanoramaRenderer {
 
-	private final GpuBuffer buffer;
+	private static final int UBO_SIZE = new Std140SizeCalculator()
+			.putFloat() // time
+			.putVec2()  // mouse
+			.putVec2()  // resolution
+			.putInt()   // frame
+			.putInt()   // persistent_frame
+			.putFloat() // speed
+			.putFloat() // mouse_left_pressed
+			.putFloat() // mouse_right_pressed
+			.get();
+
+	private final GpuBuffer vbo;
 	private final RenderPipeline pipeline;
-	private final GpuTexture texture;
+	private final GpuTextureView texture;
+	private final MappableRingBuffer ubo;
 
 	private final ScalableCanvas canvas;
 	private final ScalableCanvas backbuffer;
@@ -38,20 +51,14 @@ public final class PanoramaShaderRenderer extends PanoramaRenderer {
 	public PanoramaShaderRenderer() {
 		this.canvas = new ScalableCanvas();
 		this.backbuffer = new ScalableCanvas();
+		this.ubo = new MappableRingBuffer(() -> "Panorama UBO", GpuBuffer.USAGE_UNIFORM | GpuBuffer.USAGE_MAP_WRITE, UBO_SIZE);
 
 		this.pipeline = RenderPipeline.builder()
 				.withLocation(PanoramaClient.id("panorama"))
 				.withVertexFormat(VertexFormats.POSITION_TEXTURE_COLOR, VertexFormat.DrawMode.QUADS)
 				.withVertexShader(VERTEX_SHADER_ID)
 				.withFragmentShader(FRAGMENT_SHADER_ID)
-				.withUniform("time", UniformType.FLOAT)
-				.withUniform("mouse", UniformType.VEC2)
-				.withUniform("resolution", UniformType.VEC2)
-				.withUniform("frame", UniformType.INT)
-				.withUniform("persistent_frame", UniformType.INT)
-				.withUniform("speed", UniformType.FLOAT)
-				.withUniform("mouse_left_pressed", UniformType.FLOAT)
-				.withUniform("mouse_right_pressed", UniformType.FLOAT)
+				.withUniform("info", UniformType.UNIFORM_BUFFER)
 				.withSampler("image")
 				.withSampler("backbuffer")
 				.build();
@@ -65,7 +72,7 @@ public final class PanoramaShaderRenderer extends PanoramaRenderer {
 		final TextureManager textures = client.getTextureManager();
 
 		// check if the image.png was provided
-		this.texture = resources.getResource(TEXTURE_ID).isPresent() ? textures.getTexture(TEXTURE_ID).getGlTexture() : null;
+		this.texture = resources.getResource(TEXTURE_ID).isPresent() ? textures.getTexture(TEXTURE_ID).getGlTextureView() : null;
 
 		// bake buffer data
 		BufferBuilder builder = Tessellator.getInstance().begin(VertexFormat.DrawMode.TRIANGLES, VertexFormats.POSITION_TEXTURE_COLOR);
@@ -77,12 +84,12 @@ public final class PanoramaShaderRenderer extends PanoramaRenderer {
 		builder.vertex(-1.0f,  1.0f,  1.0f).texture(0, 1).color(1f, 1f, 1f, 1f);
 
 		try (BuiltBuffer built = builder.end()) {
-			this.buffer = RenderSystem.getDevice().createBuffer(() -> "panorama surface", BufferType.VERTICES, BufferUsage.STATIC_WRITE, built.getBuffer());
+			this.vbo = RenderSystem.getDevice().createBuffer(() -> "Panorama Quad", GpuBuffer.USAGE_VERTEX, built.getBuffer());
 		}
 	}
 
 	@Override
-	public void draw(MinecraftClient client, double time, long frame, float mouseX, float mouseY, int width, int height, float alpha) {
+	public void draw(MinecraftClient client, double time, long frame, float mouseX, float mouseY, int width, int height, DrawContext context) {
 		final float scale = (float) Options.get().quality;
 		final float w = width * scale;
 		final float h = height * scale;
@@ -94,38 +101,41 @@ public final class PanoramaShaderRenderer extends PanoramaRenderer {
 		boolean right = GLFW.glfwGetMouseButton(window, GLFW.GLFW_MOUSE_BUTTON_2) != 0;
 
 		Framebuffer target = MinecraftClient.getInstance().getFramebuffer();
+		GpuDevice device = RenderSystem.getDevice();
 
-		try (RenderPass pass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(canvas.getSurface(), OptionalInt.of(0))) {
-			pass.setVertexBuffer(0, buffer);
+		try (GpuBuffer.MappedView view = device.createCommandEncoder().mapBuffer(ubo.getBlocking(), false, true)) {
+			Std140Builder.intoBuffer(view.data())
+				.putFloat((float) time)
+				.putVec2(mouseX, mouseY)
+				.putVec2(w, h)
+				.putInt((int) frame)
+				.putInt(GlobalState.getFrame())
+				.putFloat(client.options.getPanoramaSpeed().getValue().floatValue())
+				.putFloat(left ? 1.0f : 0.0f)
+				.putFloat(right ? 1.0f : 0.0f);
+		}
+
+		try (RenderPass pass = device.createCommandEncoder().createRenderPass(() -> "Panorama", canvas.getColorView(), OptionalInt.of(0))) {
+			pass.setVertexBuffer(0, vbo);
 			pass.setPipeline(pipeline);
 
-			pass.setUniform("time", (float) time);
-			pass.setUniform("mouse", mouseX, mouseY);
-			pass.setUniform("mouse_left_pressed", left ? 1.0f : 0.0f);
-			pass.setUniform("mouse_right_pressed", right ? 1.0f : 0.0f);
-			pass.setUniform("resolution", w, h);
-			pass.setUniform("frame", frame);
-			pass.setUniform("persistent_frame", GlobalState.getFrame());
-			pass.setUniform("speed", client.options.getPanoramaSpeed().getValue().floatValue());
-
-			if (texture != null) {
-				pass.bindSampler("image", texture);
-			}
-
-			pass.bindSampler("backbuffer", backbuffer.getSurface());
+			pass.setUniform("info", this.ubo.getBlocking());
+			pass.bindSampler("image", texture);
+			pass.bindSampler("backbuffer", backbuffer.getColorView());
 
 			pass.draw(0, 6);
 		}
 
 		backbuffer.resize((int) w, (int) h);
 
-		canvas.blitInto(backbuffer.getSurface());
-		canvas.blitInto(target.getColorAttachment());
+		canvas.blitInto(backbuffer.getColorView());
+		canvas.blitInto(target.getColorAttachmentView());
 	}
 
 	@Override
 	public void close() {
-		buffer.close();
+		vbo.close();
+		ubo.close();
 		canvas.close();
 	}
 

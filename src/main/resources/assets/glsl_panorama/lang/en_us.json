@@ -4,6 +4,6 @@
 	"options.glsl_panorama.enabled": "Shaders",
 	"options.glsl_panorama.quality": "Quality: %s%%",
 	"screen.glsl_panorama.title": "Panorama Settings",
-	"screen.glsl_panorama.note": "You can open this screen by pressing F5 while on the title screen",
+	"screen.glsl_panorama.note": "You can open this screen by pressing F5 while on the title screen.",
 	"screen.glsl_panorama.reload": "Reload Shaders"
 }

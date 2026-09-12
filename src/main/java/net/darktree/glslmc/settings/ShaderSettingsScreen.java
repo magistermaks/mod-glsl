@@ -2,11 +2,12 @@ package net.darktree.glslmc.settings;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.screen.option.GameOptionsScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.ClickableWidget;
+import net.minecraft.client.gui.widget.CyclingButtonWidget;
 import net.minecraft.client.gui.widget.OptionListWidget;
-import net.minecraft.client.option.GameOptions;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -16,13 +17,15 @@ public class ShaderSettingsScreen extends GameOptionsScreen {
 	private static final Text NOTE = Text.translatable("screen.glsl_panorama.note").formatted(Formatting.GRAY);
 	private static final Text RELOAD = Text.translatable("screen.glsl_panorama.reload");
 
+	private OptionListWidget options;
+
 	public ShaderSettingsScreen() {
 		super(MinecraftClient.getInstance().currentScreen, MinecraftClient.getInstance().options, Text.translatable("screen.glsl_panorama.title"));
 	}
 
 	@Override
 	protected void init() {
-		OptionListWidget options = new OptionListWidget(this.client, this.width, this);
+		options = new OptionListWidget(this.client, this.width, this);
 		options.addAll(Options.ENABLED, Options.QUALITY);
 
 		this.addDrawableChild(options);
@@ -38,6 +41,12 @@ public class ShaderSettingsScreen extends GameOptionsScreen {
 
 	@Override
 	public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+
+		// Disable quality slider when the shaders are off
+		if (options != null && options.getWidgetFor(Options.QUALITY) instanceof ClickableWidget widget) {
+			widget.active = Options.get().enabled;
+		}
+
 		this.renderBackground(context, mouseX, mouseY, delta);
 		super.render(context, mouseX, mouseY, delta);
 		context.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, 5, 0xFFFFFF);
@@ -48,6 +57,12 @@ public class ShaderSettingsScreen extends GameOptionsScreen {
 	public void removed() {
 		super.removed();
 		Options.get().save();
+	}
+
+	public void onSpecialKey() {
+		if (parent instanceof TitleScreen) {
+			close();
+		}
 	}
 
 }

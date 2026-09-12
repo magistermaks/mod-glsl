@@ -26,15 +26,10 @@ public final class PanoramaFallbackRenderer extends PanoramaRenderer {
 	}
 
 	@Override
-	public void draw(MinecraftClient client, double time, long frame, float mouseX, float mouseY, int width, int height, float alpha) {
-		final int argb = ColorHelper.withAlpha(ColorHelper.channelFromFloat(alpha), background);
-
-		DrawContext context = new DrawContext(client, IMMEDIATE);
-
-		context.fill(0, 0, width, height, argb);
+	public void draw(MinecraftClient client, double time, long frame, float mouseX, float mouseY, int width, int height, DrawContext context) {
+		context.fill(0, 0, width, height, background);
 		context.drawText(font, TEXT_TOP, 4, 4, foreground, false);
 		context.drawText(font, TEXT_BOTTOM, 4, 6 + font.fontHeight, foreground, false);
-		context.draw();
 	}
 
 	@Override

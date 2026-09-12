@@ -4,6 +4,7 @@ import net.darktree.glslmc.PanoramaClient;
 import net.darktree.glslmc.render.impl.PanoramaFallbackRenderer;
 import net.darktree.glslmc.render.impl.PanoramaShaderRenderer;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.util.Identifier;
 
 public abstract class PanoramaRenderer {
@@ -43,7 +44,7 @@ public abstract class PanoramaRenderer {
 	/**
 	 * Called every frame by from the RotatingCubeMapRenderer Mixin
 	 */
-	public abstract void draw(MinecraftClient client, double time, long frame, float mouseX, float mouseY, int width, int height, float alpha);
+	public abstract void draw(MinecraftClient client, double time, long frame, float mouseX, float mouseY, int width, int height, DrawContext context);
 
 	/**
 	 * Called when the renderer is removed, to dispose of all the used resources

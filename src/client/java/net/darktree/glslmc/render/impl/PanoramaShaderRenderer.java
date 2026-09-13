@@ -1,6 +1,8 @@
 package net.darktree.glslmc.render.impl;
 
-import com.mojang.blaze3d.buffers.*;
+import com.mojang.blaze3d.buffers.GpuBuffer;
+import com.mojang.blaze3d.buffers.Std140Builder;
+import com.mojang.blaze3d.buffers.Std140SizeCalculator;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.systems.GpuDevice;
 import com.mojang.blaze3d.systems.RenderPass;
@@ -24,6 +26,7 @@ import net.minecraft.client.render.BuiltBuffer;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.texture.TextureManager;
+import net.minecraft.client.util.InputUtil;
 import net.minecraft.resource.ResourceManager;
 import org.lwjgl.glfw.GLFW;
 

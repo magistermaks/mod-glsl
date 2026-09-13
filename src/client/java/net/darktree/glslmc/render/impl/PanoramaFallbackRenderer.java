@@ -7,7 +7,6 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.BufferAllocator;
 import net.minecraft.text.Text;
-import net.minecraft.util.math.ColorHelper;
 
 public final class PanoramaFallbackRenderer extends PanoramaRenderer {
 

@@ -1,59 +1,59 @@
 package net.darktree.glslmc.settings;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.TitleScreen;
-import net.minecraft.client.gui.screen.option.GameOptionsScreen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.gui.widget.DirectionalLayoutWidget;
-import net.minecraft.client.gui.widget.TextWidget;
-import net.minecraft.screen.ScreenTexts;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.StringWidget;
+import net.minecraft.client.gui.layouts.LinearLayout;
+import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.client.gui.screens.options.OptionsSubScreen;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
 
-public class ShaderSettingsScreen extends GameOptionsScreen {
+public class ShaderSettingsScreen extends OptionsSubScreen {
 
-	private static final Text NOTE = Text.translatable("screen.glsl_panorama.note").formatted(Formatting.GRAY);
-	private static final Text RELOAD = Text.translatable("screen.glsl_panorama.reload");
+	private static final Component NOTE = Component.translatable("screen.glsl_panorama.note").withStyle(ChatFormatting.GRAY);
+	private static final Component RELOAD = Component.translatable("screen.glsl_panorama.reload");
 
 	public ShaderSettingsScreen() {
 
-		super(MinecraftClient.getInstance().currentScreen, MinecraftClient.getInstance().options, Text.translatable("screen.glsl_panorama.title"));
+		super(Minecraft.getInstance().screen, Minecraft.getInstance().options, Component.translatable("screen.glsl_panorama.title"));
 	}
 
 	@Override
-	protected void initHeader() {
-		DirectionalLayoutWidget grid = new DirectionalLayoutWidget(width, 0, DirectionalLayoutWidget.DisplayAxis.VERTICAL);
-		grid.getMainPositioner().alignHorizontalCenter();
+	protected void addTitle() {
+		LinearLayout grid = new LinearLayout(width, 0, LinearLayout.Orientation.VERTICAL);
+		grid.defaultCellSetting().alignHorizontallyCenter();
 
-		grid.add(new TextWidget(title, textRenderer));
-		grid.add(new TextWidget(NOTE, textRenderer));
+		grid.addChild(new StringWidget(title, font));
+		grid.addChild(new StringWidget(NOTE, font));
 
-		layout.addHeader(grid);
+		layout.addToHeader(grid);
 	}
 
 	@Override
-	protected void initFooter() {
-		this.addDrawableChild(ButtonWidget.builder(ScreenTexts.DONE, button -> this.close()).dimensions(this.width / 2 + 4, this.height - 27, 150, 20).build());
-		this.addDrawableChild(ButtonWidget.builder(RELOAD, button -> client.reloadResources()).dimensions(this.width / 2 - 154, this.height - 27, 150, 20).build());
+	protected void addFooter() {
+		this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, button -> this.onClose()).bounds(this.width / 2 + 4, this.height - 27, 150, 20).build());
+		this.addRenderableWidget(Button.builder(RELOAD, button -> minecraft.reloadResourcePacks()).bounds(this.width / 2 - 154, this.height - 27, 150, 20).build());
 	}
 
 	@Override
 	protected void addOptions() {
-		this.body.addAll(Options.ENABLED, Options.QUALITY);
+		this.list.addSmall(Options.ENABLED, Options.QUALITY);
 	}
 
 	@Override
-	public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+	public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
 
 		// Disable quality slider when the shaders are off
-		if (body != null && body.getWidgetFor(Options.QUALITY) instanceof ClickableWidget widget) {
+		if (list != null && list.findOption(Options.QUALITY) instanceof AbstractWidget widget) {
 			widget.active = Options.get().enabled;
 		}
 
-		context.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, 5, 0xFFFFFF);
-		context.drawCenteredTextWithShadow(this.textRenderer, NOTE, this.width / 2, 20, 0xFFFFFF);
+		context.drawCenteredString(this.font, this.title, this.width / 2, 5, 0xFFFFFF);
+		context.drawCenteredString(this.font, NOTE, this.width / 2, 20, 0xFFFFFF);
 
 		super.render(context, mouseX, mouseY, delta);
 	}
@@ -65,8 +65,8 @@ public class ShaderSettingsScreen extends GameOptionsScreen {
 	}
 
 	public void onSpecialKey() {
-		if (parent instanceof TitleScreen) {
-			close();
+		if (lastScreen instanceof TitleScreen) {
+			onClose();
 		}
 	}
 

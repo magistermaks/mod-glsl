@@ -5,9 +5,8 @@ import com.google.gson.GsonBuilder;
 import com.mojang.serialization.Codec;
 import net.darktree.glslmc.PanoramaClient;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.option.SimpleOption;
-import net.minecraft.text.Text;
-
+import net.minecraft.client.OptionInstance;
+import net.minecraft.network.chat.Component;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.nio.file.Files;
@@ -24,8 +23,8 @@ public class Options {
 	public boolean enabled = true;
 	public double quality = 1;
 
-	public final static SimpleOption<Boolean> ENABLED = SimpleOption.ofBoolean(ENABLED_KEY, Options.get().enabled, value -> Options.get().enabled = value);
-	public final static SimpleOption<Double> QUALITY = new SimpleOption<>(QUALITY_KEY, SimpleOption.emptyTooltip(), (text, value) -> Text.translatable(QUALITY_KEY, (int) (value * 100)), new SimpleOption.ValidatingIntSliderCallbacks(5, 100).withModifier(value -> (double)value / 100.0, value -> (int)(value * 100.0), true), Codec.doubleRange(0.05, 1.0), Options.get().quality, value -> Options.get().quality = value);
+	public final static OptionInstance<Boolean> ENABLED = OptionInstance.createBoolean(ENABLED_KEY, Options.get().enabled, value -> Options.get().enabled = value);
+	public final static OptionInstance<Double> QUALITY = new OptionInstance<>(QUALITY_KEY, OptionInstance.noTooltip(), (text, value) -> Component.translatable(QUALITY_KEY, (int) (value * 100)), new OptionInstance.IntRange(5, 100).xmap(value -> (double)value / 100.0, value -> (int)(value * 100.0), true), Codec.doubleRange(0.05, 1.0), Options.get().quality, value -> Options.get().quality = value);
 
 	/**
 	 * Get options instance

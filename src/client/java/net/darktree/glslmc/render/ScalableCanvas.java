@@ -1,19 +1,18 @@
 package net.darktree.glslmc.render;
 
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.pipeline.TextureTarget;
 import com.mojang.blaze3d.textures.GpuTextureView;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.Framebuffer;
-import net.minecraft.client.gl.SimpleFramebuffer;
-
 import java.io.Closeable;
+import net.minecraft.client.Minecraft;
 
 public class ScalableCanvas implements Closeable {
 
-	private final Framebuffer input;
+	private final RenderTarget input;
 
 	public ScalableCanvas() {
-		Framebuffer output = MinecraftClient.getInstance().getFramebuffer();
-		this.input = new SimpleFramebuffer("panorama", output.textureWidth, output.textureHeight, false);
+		RenderTarget output = Minecraft.getInstance().getMainRenderTarget();
+		this.input = new TextureTarget("panorama", output.width, output.height, false);
 	}
 
 	public void resize(int width, int height) {
@@ -23,16 +22,16 @@ public class ScalableCanvas implements Closeable {
 	}
 
 	public GpuTextureView getColorView() {
-		return input.getColorAttachmentView();
+		return input.getColorTextureView();
 	}
 
 	public void blitInto(GpuTextureView view) {
-		input.drawBlit(view);
+		input.blitAndBlendToTexture(view);
 	}
 
 	@Override
 	public void close() {
-		input.delete();
+		input.destroyBuffers();
 	}
 
 }

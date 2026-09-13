@@ -1,18 +1,18 @@
 package net.darktree.glslmc.render.impl;
 
+import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import net.darktree.glslmc.render.PanoramaRenderer;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.util.BufferAllocator;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.network.chat.Component;
 
 public final class PanoramaFallbackRenderer extends PanoramaRenderer {
 
-	private static final VertexConsumerProvider.Immediate IMMEDIATE = VertexConsumerProvider.immediate(new BufferAllocator(256));
-	private static final Text TEXT_TOP = Text.translatable("error.glsl_panorama.top");
-	private static final Text TEXT_BOTTOM = Text.translatable("error.glsl_panorama.bottom");
+	private static final MultiBufferSource.BufferSource IMMEDIATE = MultiBufferSource.immediate(new ByteBufferBuilder(256));
+	private static final Component TEXT_TOP = Component.translatable("error.glsl_panorama.top");
+	private static final Component TEXT_BOTTOM = Component.translatable("error.glsl_panorama.bottom");
 
 	private final int background;
 	private final int foreground;
@@ -23,12 +23,12 @@ public final class PanoramaFallbackRenderer extends PanoramaRenderer {
 	}
 
 	@Override
-	public void draw(MinecraftClient client, double time, long frame, float mouseX, float mouseY, int width, int height, DrawContext context) {
-		TextRenderer font = MinecraftClient.getInstance().textRenderer;
+	public void draw(Minecraft client, double time, long frame, float mouseX, float mouseY, int width, int height, GuiGraphics context) {
+		Font font = Minecraft.getInstance().font;
 
 		context.fill(0, 0, width, height, background);
-		context.drawText(font, TEXT_TOP, 4, 4, foreground, false);
-		context.drawText(font, TEXT_BOTTOM, 4, 6 + font.fontHeight, foreground, false);
+		context.drawString(font, TEXT_TOP, 4, 4, foreground, false);
+		context.drawString(font, TEXT_BOTTOM, 4, 6 + font.lineHeight, foreground, false);
 	}
 
 	@Override

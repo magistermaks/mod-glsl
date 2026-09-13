@@ -4,30 +4,29 @@ import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.Std140Builder;
 import com.mojang.blaze3d.buffers.Std140SizeCalculator;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.shaders.UniformType;
 import com.mojang.blaze3d.systems.GpuDevice;
 import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.FilterMode;
+import com.mojang.blaze3d.textures.GpuSampler;
 import com.mojang.blaze3d.textures.GpuTextureView;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.MeshData;
+import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.darktree.glslmc.PanoramaClient;
 import net.darktree.glslmc.render.GlobalState;
 import net.darktree.glslmc.render.PanoramaRenderer;
 import net.darktree.glslmc.render.ScalableCanvas;
 import net.darktree.glslmc.settings.Options;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.Framebuffer;
-import net.minecraft.client.gl.GpuSampler;
-import net.minecraft.client.gl.MappableRingBuffer;
-import net.minecraft.client.gl.UniformType;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.BuiltBuffer;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexFormats;
-import net.minecraft.client.texture.TextureManager;
-import net.minecraft.client.util.InputUtil;
-import net.minecraft.resource.ResourceManager;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.MappableRingBuffer;
+import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.server.packs.resources.ResourceManager;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.OptionalInt;
@@ -60,7 +59,7 @@ public final class PanoramaShaderRenderer extends PanoramaRenderer {
 
 		this.pipeline = RenderPipeline.builder()
 				.withLocation(PanoramaClient.id("panorama"))
-				.withVertexFormat(VertexFormats.POSITION_TEXTURE_COLOR, VertexFormat.DrawMode.QUADS)
+				.withVertexFormat(DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.TRIANGLES)
 				.withVertexShader(VERTEX_SHADER_ID)
 				.withFragmentShader(FRAGMENT_SHADER_ID)
 				.withUniform("info", UniformType.UNIFORM_BUFFER)
@@ -72,51 +71,51 @@ public final class PanoramaShaderRenderer extends PanoramaRenderer {
 			throw new RuntimeException("Failed to construct pipeline!");
 		}
 
-		final MinecraftClient client = MinecraftClient.getInstance();
+		final Minecraft client = Minecraft.getInstance();
 		final ResourceManager resources = client.getResourceManager();
 		final TextureManager textures = client.getTextureManager();
 
 		// check if the image.png was provided
-		this.texture = resources.getResource(TEXTURE_ID).isPresent() ? textures.getTexture(TEXTURE_ID).getGlTextureView() : null;
+		this.texture = resources.getResource(TEXTURE_ID).isPresent() ? textures.getTexture(TEXTURE_ID).getTextureView() : null;
 
 		// bake buffer data
-		BufferBuilder builder = Tessellator.getInstance().begin(VertexFormat.DrawMode.TRIANGLES, VertexFormats.POSITION_TEXTURE_COLOR);
-		builder.vertex(-1.0f, -1.0f,  1.0f).texture(0, 0).color(1f, 1f, 1f, 1f);
-		builder.vertex( 1.0f, -1.0f,  1.0f).texture(1, 0).color(1f, 1f, 1f, 1f);
-		builder.vertex( 1.0f,  1.0f,  1.0f).texture(1, 1).color(1f, 1f, 1f, 1f);
-		builder.vertex(-1.0f, -1.0f,  1.0f).texture(0, 0).color(1f, 1f, 1f, 1f);
-		builder.vertex( 1.0f,  1.0f,  1.0f).texture(1, 1).color(1f, 1f, 1f, 1f);
-		builder.vertex(-1.0f,  1.0f,  1.0f).texture(0, 1).color(1f, 1f, 1f, 1f);
+		BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX_COLOR);
+		builder.addVertex(-1.0f, -1.0f,  1.0f).setUv(0, 0).setColor(1f, 1f, 1f, 1f);
+		builder.addVertex( 1.0f, -1.0f,  1.0f).setUv(1, 0).setColor(1f, 1f, 1f, 1f);
+		builder.addVertex( 1.0f,  1.0f,  1.0f).setUv(1, 1).setColor(1f, 1f, 1f, 1f);
+		builder.addVertex(-1.0f, -1.0f,  1.0f).setUv(0, 0).setColor(1f, 1f, 1f, 1f);
+		builder.addVertex( 1.0f,  1.0f,  1.0f).setUv(1, 1).setColor(1f, 1f, 1f, 1f);
+		builder.addVertex(-1.0f,  1.0f,  1.0f).setUv(0, 1).setColor(1f, 1f, 1f, 1f);
 
-		try (BuiltBuffer built = builder.end()) {
-			this.vbo = RenderSystem.getDevice().createBuffer(() -> "Panorama Quad", GpuBuffer.USAGE_VERTEX, built.getBuffer());
+		try (MeshData built = builder.buildOrThrow()) {
+			this.vbo = RenderSystem.getDevice().createBuffer(() -> "Panorama Quad", GpuBuffer.USAGE_VERTEX, built.vertexBuffer());
 		}
 	}
 
 	@Override
-	public void draw(MinecraftClient client, double time, long frame, float mouseX, float mouseY, int width, int height, DrawContext context) {
+	public void draw(Minecraft client, double time, long frame, float mouseX, float mouseY, int width, int height, GuiGraphics context) {
 		final float scale = (float) Options.get().quality;
 		final float w = width * scale;
 		final float h = height * scale;
 
 		canvas.resize((int) w, (int) h);
 
-		final long window = MinecraftClient.getInstance().getWindow().getHandle();
+		final long window = Minecraft.getInstance().getWindow().handle();
 		boolean left = GLFW.glfwGetMouseButton(window, GLFW.GLFW_MOUSE_BUTTON_1) != 0;
 		boolean right = GLFW.glfwGetMouseButton(window, GLFW.GLFW_MOUSE_BUTTON_2) != 0;
 
-		Framebuffer target = MinecraftClient.getInstance().getFramebuffer();
+		RenderTarget target = Minecraft.getInstance().getMainRenderTarget();
 		GpuDevice device = RenderSystem.getDevice();
-		GpuSampler sampler = RenderSystem.getSamplerCache().get(FilterMode.NEAREST);
+		GpuSampler sampler = RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST);
 
-		try (GpuBuffer.MappedView view = device.createCommandEncoder().mapBuffer(ubo.getBlocking(), false, true)) {
+		try (GpuBuffer.MappedView view = device.createCommandEncoder().mapBuffer(ubo.currentBuffer(), false, true)) {
 			Std140Builder.intoBuffer(view.data())
 				.putFloat((float) time)
 				.putVec2(mouseX, mouseY)
 				.putVec2(w, h)
 				.putInt((int) frame)
 				.putInt(GlobalState.getFrame())
-				.putFloat(client.options.getPanoramaSpeed().getValue().floatValue())
+				.putFloat(client.options.panoramaSpeed().get().floatValue())
 				.putFloat(left ? 1.0f : 0.0f)
 				.putFloat(right ? 1.0f : 0.0f);
 		}
@@ -125,7 +124,7 @@ public final class PanoramaShaderRenderer extends PanoramaRenderer {
 			pass.setVertexBuffer(0, vbo);
 			pass.setPipeline(pipeline);
 
-			pass.setUniform("info", this.ubo.getBlocking());
+			pass.setUniform("info", this.ubo.currentBuffer());
 			pass.bindTexture("image", texture, sampler);
 			pass.bindTexture("backbuffer", backbuffer.getColorView(), sampler);
 
@@ -135,7 +134,7 @@ public final class PanoramaShaderRenderer extends PanoramaRenderer {
 		backbuffer.resize((int) w, (int) h);
 
 		canvas.blitInto(backbuffer.getColorView());
-		canvas.blitInto(target.getColorAttachmentView());
+		canvas.blitInto(target.getColorTextureView());
 	}
 
 	@Override

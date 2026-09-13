@@ -1,11 +1,20 @@
 plugins {
-	id 'fabric-loom' version '1.17-SNAPSHOT'
+	id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
 }
 
 version = project.mod_version
 group = project.maven_group
 
 loom {
+	splitEnvironmentSourceSets()
+
+	mods {
+		"glsl" {
+			sourceSet sourceSets.main
+			sourceSet sourceSets.client
+		}
+	}
+
 	runtimeOnlyLog4j = true
 }
 

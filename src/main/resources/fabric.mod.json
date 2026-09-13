@@ -22,7 +22,10 @@
 	},
 
 	"mixins": [
-		"glsl.mixins.json"
+		{
+			"config": "glsl.client.mixins.json",
+			"environment": "client"
+		}
 	],
 
 	"depends": {

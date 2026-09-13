@@ -5,6 +5,7 @@ import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.systems.GpuDevice;
 import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.textures.FilterMode;
 import com.mojang.blaze3d.textures.GpuTextureView;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.darktree.glslmc.PanoramaClient;
@@ -14,6 +15,7 @@ import net.darktree.glslmc.render.ScalableCanvas;
 import net.darktree.glslmc.settings.Options;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
+import net.minecraft.client.gl.GpuSampler;
 import net.minecraft.client.gl.MappableRingBuffer;
 import net.minecraft.client.gl.UniformType;
 import net.minecraft.client.gui.DrawContext;
@@ -102,6 +104,7 @@ public final class PanoramaShaderRenderer extends PanoramaRenderer {
 
 		Framebuffer target = MinecraftClient.getInstance().getFramebuffer();
 		GpuDevice device = RenderSystem.getDevice();
+		GpuSampler sampler = RenderSystem.getSamplerCache().get(FilterMode.NEAREST);
 
 		try (GpuBuffer.MappedView view = device.createCommandEncoder().mapBuffer(ubo.getBlocking(), false, true)) {
 			Std140Builder.intoBuffer(view.data())
@@ -120,8 +123,8 @@ public final class PanoramaShaderRenderer extends PanoramaRenderer {
 			pass.setPipeline(pipeline);
 
 			pass.setUniform("info", this.ubo.getBlocking());
-			pass.bindSampler("image", texture);
-			pass.bindSampler("backbuffer", backbuffer.getColorView());
+			pass.bindTexture("image", texture, sampler);
+			pass.bindTexture("backbuffer", backbuffer.getColorView(), sampler);
 
 			pass.draw(0, 6);
 		}

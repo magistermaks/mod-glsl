@@ -25,7 +25,7 @@ public class Options {
 	public double quality = 1;
 
 	public final static SimpleOption<Boolean> ENABLED = SimpleOption.ofBoolean(ENABLED_KEY, Options.get().enabled, value -> Options.get().enabled = value);
-	public final static SimpleOption<Double> QUALITY = new SimpleOption<>(QUALITY_KEY, SimpleOption.emptyTooltip(), (text, value) -> Text.translatable(QUALITY_KEY, (int) (value * 100)), new SimpleOption.ValidatingIntSliderCallbacks(5, 100).withModifier(value -> (double)value / 100.0, value -> (int)(value * 100.0)), Codec.doubleRange(0.05, 1.0), Options.get().quality, value -> Options.get().quality = value);
+	public final static SimpleOption<Double> QUALITY = new SimpleOption<>(QUALITY_KEY, SimpleOption.emptyTooltip(), (text, value) -> Text.translatable(QUALITY_KEY, (int) (value * 100)), new SimpleOption.ValidatingIntSliderCallbacks(5, 100).withModifier(value -> (double)value / 100.0, value -> (int)(value * 100.0), true), Codec.doubleRange(0.05, 1.0), Options.get().quality, value -> Options.get().quality = value);
 
 	/**
 	 * Get options instance

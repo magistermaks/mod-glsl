@@ -93,7 +93,7 @@ public final class PanoramaShaderRenderer extends PanoramaRenderer {
 	}
 
 	@Override
-	public void draw(Minecraft client, double time, long frame, float mouseX, float mouseY, int width, int height, GuiGraphicsExtractor context) {
+	public void render(Minecraft client, double time, long frame, float mouseX, float mouseY, int width, int height) {
 		final float scale = (float) Options.get().quality;
 		final float w = width * scale;
 		final float h = height * scale;

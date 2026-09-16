@@ -21,7 +21,7 @@ public abstract class CubeMapMixin {
 	 * when Panorama Shades are enabled
 	 */
 	@WrapMethod(method = "render")
-	public void onCubemapDraw(float rotXInDegrees, float rotYInDegrees, Operation<Void> original) {
+	public void onCubemapRender(float rotXInDegrees, float rotYInDegrees, Operation<Void> original) {
 		if (Options.get().enabled) {
 			Minecraft client = Minecraft.getInstance();
 
@@ -33,7 +33,7 @@ public abstract class CubeMapMixin {
 			float my = (float) client.mouseHandler.ypos() / (float) height;
 
 			time += client.getDeltaTracker().getGameTimeDeltaTicks();
-			PanoramaRenderer.getInstance().draw(client, time / 60, frame, mx, my, width, height, null);
+			PanoramaRenderer.getInstance().render(client, time / 60, frame, mx, my, width, height);
 		} else {
 			original.call(rotXInDegrees, rotYInDegrees);
 		}

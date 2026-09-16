@@ -1,20 +1,17 @@
 package net.darktree.glslmc.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.platform.Window;
 import net.darktree.glslmc.render.GlobalState;
 import net.darktree.glslmc.render.PanoramaRenderer;
 import net.darktree.glslmc.settings.Options;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.CubeMap;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
 
-@Mixin(net.minecraft.client.renderer.PanoramaRenderer.class)
-public abstract class RotatingCubeMapRendererMixin {
+@Mixin(net.minecraft.client.renderer.CubeMap.class)
+public abstract class CubeMapMixin {
 
 	@Unique private double time = 0;
 	@Unique private long frame = 0;
@@ -23,15 +20,11 @@ public abstract class RotatingCubeMapRendererMixin {
 	 * We replace the default cubemap render call with our own,
 	 * when Panorama Shades are enabled
 	 */
-	@WrapOperation(
-			method = "render",
-			at = @At(
-					value = "INVOKE",
-					target = "Lnet/minecraft/client/renderer/CubeMap;render(Lnet/minecraft/client/Minecraft;FF)V"
-			)
-	)
-	public void onCubemapDraw(CubeMap instance, Minecraft client, float x, float y, Operation<Void> original, GuiGraphics context) {
+	@WrapMethod(method = "render")
+	public void onCubemapDraw(float rotXInDegrees, float rotYInDegrees, Operation<Void> original) {
 		if (Options.get().enabled) {
+			Minecraft client = Minecraft.getInstance();
+
 			Window window = client.getWindow();
 			int width = window.getScreenWidth();
 			int height = window.getScreenHeight();
@@ -40,9 +33,9 @@ public abstract class RotatingCubeMapRendererMixin {
 			float my = (float) client.mouseHandler.ypos() / (float) height;
 
 			time += client.getDeltaTracker().getGameTimeDeltaTicks();
-			PanoramaRenderer.getInstance().draw(client, time / 60, frame, mx, my, width, height, context);
+			PanoramaRenderer.getInstance().draw(client, time / 60, frame, mx, my, width, height, null);
 		} else {
-			original.call(instance, client, x, y);
+			original.call(rotXInDegrees, rotYInDegrees);
 		}
 
 		GlobalState.nextFrame();

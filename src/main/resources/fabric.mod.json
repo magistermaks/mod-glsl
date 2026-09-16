@@ -31,7 +31,7 @@
 	"depends": {
 		"fabricloader": ">=0.17.2",
 		"fabric-api": "*",
-		"minecraft": ["1.21.11"]
+		"minecraft": ["26.1"]
 	},
 
 	"suggests": {},

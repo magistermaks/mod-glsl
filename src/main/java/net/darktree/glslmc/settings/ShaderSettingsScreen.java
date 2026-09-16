@@ -2,7 +2,7 @@ package net.darktree.glslmc.settings;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.StringWidget;
@@ -18,7 +18,6 @@ public class ShaderSettingsScreen extends OptionsSubScreen {
 	private static final Component RELOAD = Component.translatable("screen.glsl_panorama.reload");
 
 	public ShaderSettingsScreen() {
-
 		super(Minecraft.getInstance().screen, Minecraft.getInstance().options, Component.translatable("screen.glsl_panorama.title"));
 	}
 
@@ -45,17 +44,13 @@ public class ShaderSettingsScreen extends OptionsSubScreen {
 	}
 
 	@Override
-	public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
-
+	public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
 		// Disable quality slider when the shaders are off
 		if (list != null && list.findOption(Options.QUALITY) instanceof AbstractWidget widget) {
 			widget.active = Options.get().enabled;
 		}
 
-		context.drawCenteredString(this.font, this.title, this.width / 2, 5, 0xFFFFFF);
-		context.drawCenteredString(this.font, NOTE, this.width / 2, 20, 0xFFFFFF);
-
-		super.render(context, mouseX, mouseY, delta);
+		super.extractRenderState(graphics, mouseX, mouseY, a);
 	}
 
 	@Override

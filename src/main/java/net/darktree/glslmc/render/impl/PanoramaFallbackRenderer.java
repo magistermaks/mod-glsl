@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import net.darktree.glslmc.render.PanoramaRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 
@@ -23,12 +23,12 @@ public final class PanoramaFallbackRenderer extends PanoramaRenderer {
 	}
 
 	@Override
-	public void draw(Minecraft client, double time, long frame, float mouseX, float mouseY, int width, int height, GuiGraphics context) {
+	public void draw(Minecraft client, double time, long frame, float mouseX, float mouseY, int width, int height, GuiGraphicsExtractor context) {
 		Font font = Minecraft.getInstance().font;
 
 		context.fill(0, 0, width, height, background);
-		context.drawString(font, TEXT_TOP, 4, 4, foreground, false);
-		context.drawString(font, TEXT_BOTTOM, 4, 6 + font.lineHeight, foreground, false);
+		context.text(font, TEXT_TOP, 4, 4, foreground, false);
+		context.text(font, TEXT_BOTTOM, 4, 6 + font.lineHeight, foreground, false);
 	}
 
 	@Override

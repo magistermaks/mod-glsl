@@ -4,7 +4,7 @@ import net.darktree.glslmc.PanoramaClient;
 import net.darktree.glslmc.render.impl.PanoramaFallbackRenderer;
 import net.darktree.glslmc.render.impl.PanoramaShaderRenderer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.resources.Identifier;
 
 public abstract class PanoramaRenderer {
@@ -42,13 +42,24 @@ public abstract class PanoramaRenderer {
 	}
 
 	/**
-	 * Called every frame by from the RotatingCubeMapRenderer Mixin
+	 * Called every frame by from the CubeMap Mixin
 	 */
-	public abstract void draw(Minecraft client, double time, long frame, float mouseX, float mouseY, int width, int height, GuiGraphics context);
+	public void render(Minecraft client, double time, long frame, float mouseX, float mouseY, int width, int height) {
+		// do nothing
+	}
+
+	/**
+	 * Can be used to draw a GUI overlay over the screen
+	 */
+	public void extract(int width, int height, GuiGraphicsExtractor context) {
+		// do nothing
+	}
 
 	/**
 	 * Called when the renderer is removed, to dispose of all the used resources
 	 */
-	public abstract void close();
+	public void close() {
+		// do nothing
+	}
 
 }

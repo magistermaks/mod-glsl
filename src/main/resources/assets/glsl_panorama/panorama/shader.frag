@@ -6,7 +6,7 @@ uniform float time;
 uniform float speed;
 uniform vec2 resolution;
 
-#define TIME          ((time + 1000)*2*speed)
+#define TIME          (time*2*speed)
 #define PI            3.141592654
 #define TAU           (2.0*PI)
 
@@ -50,10 +50,11 @@ float hash(float co) {
     return fract(sin(co*12.9898) * 13758.5453);
 }
 
-// License: Unknown, author: Unknown, found: don't remember
+// https://arugl.medium.com/hash-noise-in-gpu-shaders-210188ac3a3e
 float hash(vec2 p) {
-    float a = dot (p, vec2 (127.1, 311.7));
-    return fract(sin(a)*43758.5453123);
+    vec3 p3  = fract(vec3(p.xyx) * .2031);
+    p3 += dot(p3, p3.yzx + 33.33);
+    return fract((p3.x + p3.y) * p3.z);
 }
 
 // Value noise: https://iquilezles.org/articles/morenoise
@@ -162,7 +163,7 @@ vec4 plane(vec3 ro, vec3 pp, vec3 npp, vec3 off, float n) {
     float lod = p.y - lohe;
 
     float aa = distance(pp, npp)*sqrt(1.0/3.0);
-    float t = smoothstep(aa, -aa, d);
+    float t = 1.0 - smoothstep(-aa, aa, d);
 
     float df = exp(-0.1*(distance(ro, pp)-2.));
     vec3 acol = hsv2rgb(vec3(mix(0.9, 0.6, df), 0.9, mix(1.0, 0.0, df)));
@@ -300,7 +301,6 @@ vec3 color(vec3 ww, vec3 uu, vec3 vv, vec3 ro, vec2 p) {
             float nz = pp.z-ro.z;
             float fadeIn = smoothstep(maxDist, fadeDist, pd);
             pcol.xyz = mix(skyCol, pcol.xyz, fadeIn);
-            //      pcol.w *= fadeOut;
             pcol = clamp(pcol, 0.0, 1.0);
 
             acol = alphaBlend(pcol, acol);

@@ -1,5 +1,6 @@
 package net.darktree.glslmc.render;
 
+import com.mojang.blaze3d.GpuFormat;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.pipeline.TextureTarget;
 import com.mojang.blaze3d.textures.GpuTextureView;
@@ -11,8 +12,8 @@ public class ScalableCanvas implements Closeable {
 	private final RenderTarget input;
 
 	public ScalableCanvas() {
-		RenderTarget output = Minecraft.getInstance().getMainRenderTarget();
-		this.input = new TextureTarget("panorama", output.width, output.height, false);
+		RenderTarget output = Minecraft.getInstance().gameRenderer.mainRenderTarget();
+		this.input = new TextureTarget("panorama", output.width, output.height, false, GpuFormat.RGBA8_UNORM);
 	}
 
 	public void resize(int width, int height) {
@@ -26,7 +27,7 @@ public class ScalableCanvas implements Closeable {
 	}
 
 	public void blitInto(GpuTextureView view) {
-		input.blitAndBlendToTexture(view);
+		input.blitAndBlendToTexture(view, null);
 	}
 
 	@Override

@@ -7,7 +7,9 @@
 		"KeyboardMixin",
 		"CubeMapMixin",
 		"ShaderLoaderMixin",
-		"PanoramaMixin"
+		"PanoramaMixin",
+		"IntermediaryShaderModuleMixin",
+		"MouseHandlerMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

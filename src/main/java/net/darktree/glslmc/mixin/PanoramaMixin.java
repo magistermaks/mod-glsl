@@ -16,7 +16,7 @@ public class PanoramaMixin {
 			method = "extractRenderState",
 			at = @At("TAIL")
 	)
-	public void onExtractRenderState(GuiGraphicsExtractor graphics, int width, int height, boolean shouldSpin, CallbackInfo ci) {
+	public void onExtractRenderState(GuiGraphicsExtractor graphics, int width, int height, CallbackInfo ci) {
 		if (Options.get().enabled) {
 			PanoramaRenderer.getInstance().extract(width, height, graphics);
 		}

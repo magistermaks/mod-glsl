@@ -17,6 +17,7 @@ import com.mojang.blaze3d.textures.GpuSampler;
 import com.mojang.blaze3d.textures.GpuTextureView;
 import com.mojang.blaze3d.vertex.*;
 import net.darktree.glslmc.PanoramaClient;
+import net.darktree.glslmc.render.ButtonAccess;
 import net.darktree.glslmc.render.GlobalState;
 import net.darktree.glslmc.render.PanoramaRenderer;
 import net.darktree.glslmc.render.ScalableCanvas;
@@ -112,6 +113,9 @@ public final class PanoramaShaderRenderer extends PanoramaRenderer {
 				this.vbo = RenderSystem.getDevice().createBuffer(() -> "Panorama Quad", GpuBuffer.USAGE_VERTEX, built.vertexBuffer());
 			}
 		}
+
+		// clear backbuffer
+		RenderSystem.getDevice().createCommandEncoder().createRenderPass(() -> "Clear Backbuffer", backbuffer.getColorView(), CLEAR_COLOR).close();
 	}
 
 	@Override
@@ -122,8 +126,9 @@ public final class PanoramaShaderRenderer extends PanoramaRenderer {
 
 		canvas.resize((int) w, (int) h);
 
-		boolean left = client.mouseHandler.isLeftPressed();
-		boolean right = client.mouseHandler.isRightPressed();
+		ButtonAccess button = ((ButtonAccess) client.mouseHandler);
+		boolean left = button.glsl_isLeftPressed();
+		boolean right = button.glsl_isRightPressed();
 
 		RenderTarget target = Minecraft.getInstance().gameRenderer.mainRenderTarget();
 		GpuDevice device = RenderSystem.getDevice();

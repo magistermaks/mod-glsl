@@ -6,7 +6,7 @@
 #define PI            3.141592654
 #define TAU           (2.0*PI)
 
-out vec4 fragment;
+layout(location = 0) out vec4 fragment;
 
 // License: WTFPL, author: sam hocevar, found: https://stackoverflow.com/a/17897228/418488
 const vec4 hsv2rgb_K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);

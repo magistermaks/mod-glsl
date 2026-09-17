@@ -1,21 +1,18 @@
 package net.darktree.glslmc.render.impl;
 
-import com.mojang.blaze3d.PrimitiveTopology;
-import com.mojang.blaze3d.buffers.GpuBuffer;
-import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.buffers.Std140Builder;
 import com.mojang.blaze3d.buffers.Std140SizeCalculator;
-import com.mojang.blaze3d.pipeline.BindGroupLayout;
-import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.shaders.UniformType;
-import com.mojang.blaze3d.systems.GpuDevice;
-import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.textures.FilterMode;
-import com.mojang.blaze3d.textures.GpuSampler;
-import com.mojang.blaze3d.textures.GpuTextureView;
 import com.mojang.blaze3d.vertex.*;
+import com.mojang.renderpearl.api.buffers.GpuBuffer;
+import com.mojang.renderpearl.api.buffers.GpuBufferSlice;
+import com.mojang.renderpearl.api.commands.RenderPass;
+import com.mojang.renderpearl.api.device.GpuDevice;
+import com.mojang.renderpearl.api.pipeline.*;
+import com.mojang.renderpearl.api.textures.FilterMode;
+import com.mojang.renderpearl.api.textures.GpuSampler;
+import com.mojang.renderpearl.api.textures.GpuTextureView;
 import net.darktree.glslmc.PanoramaClient;
 import net.darktree.glslmc.render.ButtonAccess;
 import net.darktree.glslmc.render.GlobalState;
@@ -41,8 +38,8 @@ public final class PanoramaShaderRenderer extends PanoramaRenderer {
 
 	public static final BindGroupLayout UNIFORM_LAYOUT = BindGroupLayout.builder()
 			.withUniform("info", UniformType.UNIFORM_BUFFER)
-			.withSampler("image")
-			.withSampler("backbuffer")
+			.withUniform("image", UniformType.COMBINED_IMAGE_SAMPLER)
+			.withUniform("backbuffer", UniformType.COMBINED_IMAGE_SAMPLER)
 			.build();
 
 	private static final int UBO_SIZE = new Std140SizeCalculator()
@@ -57,7 +54,7 @@ public final class PanoramaShaderRenderer extends PanoramaRenderer {
 			.get();
 
 	private final GpuBuffer vbo;
-	private final RenderPipeline pipeline;
+	private final CompiledRenderPipeline pipeline;
 	private final GpuTextureView texture;
 	private final MappableRingBuffer ubo;
 
@@ -83,18 +80,17 @@ public final class PanoramaShaderRenderer extends PanoramaRenderer {
 		this.backbuffer = new ScalableCanvas();
 		this.ubo = new MappableRingBuffer(() -> "Panorama UBO", GpuBuffer.USAGE_UNIFORM | GpuBuffer.USAGE_MAP_WRITE, UBO_SIZE);
 
-		this.pipeline = RenderPipeline.builder()
+		RenderPipeline pipeline = RenderPipeline.builder()
 				.withLocation(PanoramaClient.id("panorama"))
 				.withVertexBinding(0, DefaultVertexFormat.POSITION_TEX_COLOR)
 				.withVertexShader(VERTEX_SHADER_ID)
 				.withFragmentShader(FRAGMENT_SHADER_ID)
 				.withPrimitiveTopology(PrimitiveTopology.TRIANGLES)
 				.withBindGroupLayout(UNIFORM_LAYOUT)
+				.withColorTargetState(ColorTargetState.DEFAULT)
 				.build();
 
-		if (!RenderSystem.getDevice().precompilePipeline(pipeline).isValid()) {
-			throw new RuntimeException("Failed to construct pipeline!");
-		}
+		this.pipeline = RenderSystem.getCompiledPipeline(pipeline);
 
 		// check if the image.png was provided
 		this.texture = getTexture(TEXTURE_ID).getTextureView();
@@ -151,8 +147,8 @@ public final class PanoramaShaderRenderer extends PanoramaRenderer {
 			pass.setPipeline(pipeline);
 
 			pass.setUniform("info", this.ubo.currentBuffer());
-			pass.bindTexture("image", texture, sampler);
-			pass.bindTexture("backbuffer", backbuffer.getColorView(), sampler);
+			pass.setUniform("image", texture, sampler);
+			pass.setUniform("backbuffer", backbuffer.getColorView(), sampler);
 
 			pass.draw(6, 1, 0, 0);
 		}

@@ -8,7 +8,6 @@
 		"CubeMapMixin",
 		"ShaderLoaderMixin",
 		"PanoramaMixin",
-		"IntermediaryShaderModuleMixin",
 		"MouseHandlerMixin"
 	],
 	"injectors": {

@@ -34,14 +34,14 @@ public abstract class KeyboardMixin {
 	)
 	public void glsl_onKey(long window, int action, KeyEvent input, CallbackInfo ci) {
 		if (input.key() == InputConstants.KEY_F5 && action == GLFW.GLFW_RELEASE) {
-			Screen current = this.minecraft.screen;
+			Screen current = this.minecraft.gui.screen();
 
 			if (current instanceof ShaderSettingsScreen config) {
 				config.onSpecialKey();
 			}
 
 			if (current instanceof TitleScreen) {
-				this.minecraft.setScreen(new ShaderSettingsScreen());
+				this.minecraft.setScreenAndShow(new ShaderSettingsScreen());
 			}
 		}
 	}

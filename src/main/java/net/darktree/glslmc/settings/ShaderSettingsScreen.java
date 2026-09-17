@@ -18,7 +18,7 @@ public class ShaderSettingsScreen extends OptionsSubScreen {
 	private static final Component RELOAD = Component.translatable("screen.glsl_panorama.reload");
 
 	public ShaderSettingsScreen() {
-		super(Minecraft.getInstance().screen, Minecraft.getInstance().options, Component.translatable("screen.glsl_panorama.title"));
+		super(Minecraft.getInstance().gui.screen(), Minecraft.getInstance().options, Component.translatable("screen.glsl_panorama.title"));
 	}
 
 	@Override

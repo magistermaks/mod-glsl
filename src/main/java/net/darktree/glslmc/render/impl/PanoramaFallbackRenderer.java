@@ -24,8 +24,8 @@ public final class PanoramaFallbackRenderer extends PanoramaRenderer {
 		Font font = Minecraft.getInstance().font;
 
 		context.fill(0, 0, width, height, background);
-		context.text(font, TEXT_TOP, 4, 4, foreground, false);
-		context.text(font, TEXT_BOTTOM, 4, 6 + font.lineHeight, foreground, false);
+		context.text(font, TEXT_TOP, 4, 4, foreground, true);
+		context.text(font, TEXT_BOTTOM, 4, 6 + font.lineHeight, foreground, true);
 	}
 
 }

@@ -38,6 +38,7 @@ public abstract class CubeMapMixin {
 			original.call(rotXInDegrees, rotYInDegrees);
 		}
 
+		frame ++;
 		GlobalState.nextFrame();
 	}
 

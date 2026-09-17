@@ -15,7 +15,7 @@ public class ShaderPatcher {
 	private static final String PREAMBLE = """
 			#version 330
 			
-			layout (std140) uniform info {
+			layout(std140) uniform info {
 			    uniform float time;
 			    uniform vec2 mouse;
 			    uniform vec2 resolution;

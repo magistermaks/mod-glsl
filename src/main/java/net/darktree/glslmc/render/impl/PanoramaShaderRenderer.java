@@ -14,7 +14,6 @@ import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.FilterMode;
 import com.mojang.blaze3d.textures.GpuSampler;
-import com.mojang.blaze3d.textures.GpuTexture;
 import com.mojang.blaze3d.textures.GpuTextureView;
 import com.mojang.blaze3d.vertex.*;
 import net.darktree.glslmc.PanoramaClient;
@@ -32,10 +31,8 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.joml.Vector4f;
 import org.joml.Vector4fc;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.Optional;
-import java.util.OptionalInt;
 
 public final class PanoramaShaderRenderer extends PanoramaRenderer {
 
@@ -71,10 +68,10 @@ public final class PanoramaShaderRenderer extends PanoramaRenderer {
 		ResourceManager resources = client.getResourceManager();
 		TextureManager textures = client.getTextureManager();
 
-		if (resources.getResource(TEXTURE_ID).isPresent()) {
-			return textures.getTexture(TEXTURE_ID);
+		if (resources.getResource(identifier).isPresent()) {
+			return textures.getTexture(identifier);
 		} else {
-			SimpleTexture texture = new SimpleTexture(TEXTURE_ID);
+			SimpleTexture texture = new SimpleTexture(identifier);
 			texture.apply(TextureContents.createMissing());
 			return texture;
 		}
@@ -97,10 +94,6 @@ public final class PanoramaShaderRenderer extends PanoramaRenderer {
 		if (!RenderSystem.getDevice().precompilePipeline(pipeline).isValid()) {
 			throw new RuntimeException("Failed to construct pipeline!");
 		}
-
-		final Minecraft client = Minecraft.getInstance();
-		final ResourceManager resources = client.getResourceManager();
-		final TextureManager textures = client.getTextureManager();
 
 		// check if the image.png was provided
 		this.texture = getTexture(TEXTURE_ID).getTextureView();

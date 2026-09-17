@@ -6,7 +6,7 @@ uniform float time;
 uniform float speed;
 uniform vec2 resolution;
 
-#define TIME          (time*2*speed)
+#define TIME          ((time + 1000)*2*speed)
 #define PI            3.141592654
 #define TAU           (2.0*PI)
 
@@ -147,7 +147,7 @@ float loheight(vec2 p) {
     return lofbm(p)-2.15;
 }
 
-vec4 plane(vec3 ro, vec3 rd, vec3 pp, vec3 npp, vec3 off, float n) {
+vec4 plane(vec3 ro, vec3 pp, vec3 npp, vec3 off, float n) {
     float h = hash(n);
     float s = mix(0.05, 0.25, h);
 
@@ -295,7 +295,7 @@ vec3 color(vec3 ww, vec3 uu, vec3 vv, vec3 ro, vec2 p) {
 
             vec3 off = vec3(0.0);
 
-            vec4 pcol = plane(ro, rd, pp, npp, off, nz+float(i));
+            vec4 pcol = plane(ro, pp, npp, off, nz+float(i));
 
             float nz = pp.z-ro.z;
             float fadeIn = smoothstep(maxDist, fadeDist, pd);

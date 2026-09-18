@@ -8,12 +8,10 @@ import java.util.stream.Stream;
 
 public class ShaderPatcher {
 
-	private static final String FRAGMENT_OLD = "gl_FragColor";
-	private static final String FRAGMENT_NEW = "fragmentColor";
 	private static final Pattern UNIFORM_REGEX = Pattern.compile("^[^\\S\\r\\n]*uniform\\s+[\\w\\s]+;$", Pattern.MULTILINE);
 
 	private static final String PREAMBLE = """
-			#version 330
+			#version 450
 			
 			layout(std140) uniform info {
 			    uniform float time;
@@ -33,9 +31,9 @@ public class ShaderPatcher {
 			""";
 
 	private static String patchFragmentOutput(String shader) {
-		if (shader.contains(FRAGMENT_OLD)) {
-			shader = "out vec4 " + FRAGMENT_NEW + ";\n" + shader.replace(FRAGMENT_OLD, FRAGMENT_NEW);
-			PanoramaClient.LOGGER.warn("Loaded Panorama Shader uses outdated OpenGL keyword '{}', consider switching to explicit fragment shader output (out vec4)!", FRAGMENT_OLD);
+		if (shader.contains("gl_FragColor")) {
+			shader = "layout(location = 0) out vec4 fragmentColor;\n" + shader.replace("gl_FragColor", "fragmentColor");
+			PanoramaClient.LOGGER.warn("Loaded Panorama Shader uses outdated OpenGL keyword 'gl_FragColor', consider switching to explicit fragment shader output (out vec4)!");
 		}
 
 		return shader;

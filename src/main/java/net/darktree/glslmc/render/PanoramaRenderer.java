@@ -7,13 +7,20 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.resources.Identifier;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public abstract class PanoramaRenderer {
 
 	public static final Identifier VERTEX_SHADER_ID = PanoramaClient.id("panorama/shader.vert");
 	public static final Identifier FRAGMENT_SHADER_ID = PanoramaClient.id("panorama/shader.frag");
 	public static final Identifier TEXTURE_ID = PanoramaClient.id("panorama/texture.png");
 
-	private static PanoramaRenderer create() {
+	private static final List<String> DETAILS = new ArrayList<>();
+	private static PanoramaRenderer INSTANCE = null;
+
+	private static PanoramaRenderer instantiate() {
 		try {
 			return new PanoramaShaderRenderer();
 		} catch (Exception exception) {
@@ -21,10 +28,14 @@ public abstract class PanoramaRenderer {
 		}
 
 		// this will draw a basic error screen and direct the user to read the logs
-		return new PanoramaFallbackRenderer(0xFFEF323D, 0xFFFFFFFF);
+		return new PanoramaFallbackRenderer(0xFFEF323D, 0xFFFFFFFF, DETAILS);
 	}
 
-	private static PanoramaRenderer INSTANCE = null;
+	private static PanoramaRenderer create() {
+		PanoramaRenderer renderer = instantiate();
+		DETAILS.clear();
+		return renderer;
+	}
 
 	public static void reload() {
 		if (INSTANCE != null) {
@@ -39,6 +50,10 @@ public abstract class PanoramaRenderer {
 		}
 
 		return INSTANCE;
+	}
+
+	public static void addDebugInfo(String info) {
+		Collections.addAll(DETAILS, info.split("\n"));
 	}
 
 	/**

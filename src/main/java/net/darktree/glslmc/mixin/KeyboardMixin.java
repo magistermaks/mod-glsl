@@ -7,7 +7,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.input.KeyEvent;
-import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -33,7 +32,7 @@ public abstract class KeyboardMixin {
 			)
 	)
 	public void glsl_onKey(long window, int action, KeyEvent input, CallbackInfo ci) {
-		if (input.key() == InputConstants.KEY_F5 && action == GLFW.GLFW_RELEASE) {
+		if (input.key() == InputConstants.KEY_F5 && action == 0) {
 			Screen current = this.minecraft.gui.screen();
 
 			if (current instanceof ShaderSettingsScreen config) {

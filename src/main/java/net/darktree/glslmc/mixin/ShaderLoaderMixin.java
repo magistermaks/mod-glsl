@@ -3,7 +3,8 @@ package net.darktree.glslmc.mixin;
 import com.google.common.collect.ImmutableMap;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.mojang.blaze3d.shaders.ShaderType;
+import com.mojang.renderpearl.api.device.GpuDevice;
+import com.mojang.renderpearl.api.pipeline.ShaderType;
 import net.darktree.glslmc.PanoramaClient;
 import net.darktree.glslmc.render.PanoramaRenderer;
 import net.darktree.glslmc.render.ShaderPatcher;
@@ -12,30 +13,28 @@ import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.util.profiling.ProfilerFiller;
 import org.apache.commons.io.IOUtils;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Coerce;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.nio.charset.Charset;
-import java.util.Collections;
-import java.util.Map;
 
 @Mixin(ShaderManager.class)
 public class ShaderLoaderMixin {
 
 	@Shadow
-	private static void loadShader(Identifier id, Resource resource, ShaderType type, Map<Identifier, Resource> resources, ImmutableMap.Builder<?, ?> builder) {
+	private static void loadShader(final Identifier location, final Resource resource, final ShaderType type, final ImmutableMap.Builder<?, ?> output) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Unique
-	private Resource patchShader(Resource resource) {
+	private static Resource patchShader(Resource resource) {
 		try {
 			String patched = ShaderPatcher.patch(IOUtils.toString(resource.openAsReader()));
 
@@ -47,8 +46,8 @@ public class ShaderLoaderMixin {
 	}
 
 	@Unique
-	private void injectShader(ImmutableMap.Builder<?, ?> builder, ResourceManager manager, Identifier id, ShaderType type) {
-		manager.getResource(id).ifPresent(resource -> loadShader(id, patchShader(resource), type, Collections.emptyMap(), builder));
+	private static void injectShader(ImmutableMap.Builder<?, ?> builder, ResourceManager manager, Identifier id, ShaderType type) {
+		manager.getResource(id).ifPresent(resource -> loadShader(id, patchShader(resource), type, builder));
 	}
 
 	/**
@@ -76,19 +75,20 @@ public class ShaderLoaderMixin {
 	 * we need to do this as they exist in a custom namespace and directory.
 	 */
 	@WrapOperation(
-			method = "prepare(Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/util/profiling/ProfilerFiller;)Lnet/minecraft/client/renderer/ShaderManager$Configs;",
+			method = "loadConfigs",
 			slice = @Slice(
 					to = @At(
 							value = "INVOKE",
-							target = "Lnet/minecraft/client/renderer/ShaderManager;loadShader(Lnet/minecraft/resources/Identifier;Lnet/minecraft/server/packs/resources/Resource;Lcom/mojang/blaze3d/shaders/ShaderType;Ljava/util/Map;Lcom/google/common/collect/ImmutableMap$Builder;)V"
+							target = "Lnet/minecraft/server/packs/resources/ResourceManager;listResources(Ljava/lang/String;Lnet/minecraft/server/packs/resources/ResourceManager$Selector;)Ljava/util/Map;"
 					)
 			),
 			at = @At(
 					value = "INVOKE",
-					target = "Lcom/google/common/collect/ImmutableMap;builder()Lcom/google/common/collect/ImmutableMap$Builder;"
+					target = "Lcom/google/common/collect/ImmutableMap;builder()Lcom/google/common/collect/ImmutableMap$Builder;",
+					ordinal = 0
 			)
 	)
-	protected ImmutableMap.Builder<?, ?> onShaderPrepare(Operation<ImmutableMap.Builder<?, ?>> original, ResourceManager manager) {
+	private static ImmutableMap.Builder<?, ?> onShaderPrepare(Operation<ImmutableMap.Builder<?, ?>> original, ResourceManager manager) {
 		final ImmutableMap.Builder<?, ?> builder = original.call();
 
 		injectShader(builder, manager, PanoramaRenderer.FRAGMENT_SHADER_ID, ShaderType.FRAGMENT);
@@ -103,10 +103,10 @@ public class ShaderLoaderMixin {
 	 * possibly swap to the fallback renderer
 	 */
 	@Inject(
-			method = "apply(Lnet/minecraft/client/renderer/ShaderManager$Configs;Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/util/profiling/ProfilerFiller;)V",
+			method = "apply",
 			at = @At("TAIL")
 	)
-	protected void onApplyDone(ShaderManager.Configs definitions, ResourceManager resourceManager, ProfilerFiller profiler, CallbackInfo ci) {
+	protected void onApplyDone(GpuDevice device, @Coerce Record compilations, CallbackInfo ci) {
 		PanoramaRenderer.reload();
 	}
 

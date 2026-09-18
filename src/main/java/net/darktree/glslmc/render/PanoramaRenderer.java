@@ -8,6 +8,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.resources.Identifier;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public abstract class PanoramaRenderer {
@@ -52,7 +53,7 @@ public abstract class PanoramaRenderer {
 	}
 
 	public static void addDebugInfo(String info) {
-		DETAILS.add(info);
+		Collections.addAll(DETAILS, info.split("\n"));
 	}
 
 	/**

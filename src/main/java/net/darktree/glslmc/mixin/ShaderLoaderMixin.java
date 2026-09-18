@@ -79,12 +79,13 @@ public class ShaderLoaderMixin {
 			slice = @Slice(
 					to = @At(
 							value = "INVOKE",
-							target = "Lnet/minecraft/client/renderer/ShaderManager;loadShader(Lnet/minecraft/resources/Identifier;Lnet/minecraft/server/packs/resources/Resource;Lcom/mojang/renderpearl/api/pipeline/ShaderType;Lcom/google/common/collect/ImmutableMap$Builder;)V"
+							target = "Lnet/minecraft/server/packs/resources/ResourceManager;listResources(Ljava/lang/String;Lnet/minecraft/server/packs/resources/ResourceManager$Selector;)Ljava/util/Map;"
 					)
 			),
 			at = @At(
 					value = "INVOKE",
-					target = "Lcom/google/common/collect/ImmutableMap;builder()Lcom/google/common/collect/ImmutableMap$Builder;"
+					target = "Lcom/google/common/collect/ImmutableMap;builder()Lcom/google/common/collect/ImmutableMap$Builder;",
+					ordinal = 0
 			)
 	)
 	private static ImmutableMap.Builder<?, ?> onShaderPrepare(Operation<ImmutableMap.Builder<?, ?>> original, ResourceManager manager) {

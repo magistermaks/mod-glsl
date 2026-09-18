@@ -8,7 +8,8 @@
 		"CubeMapMixin",
 		"ShaderLoaderMixin",
 		"PanoramaMixin",
-		"MouseHandlerMixin"
+		"MouseHandlerMixin",
+		"GlslCompilerMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
